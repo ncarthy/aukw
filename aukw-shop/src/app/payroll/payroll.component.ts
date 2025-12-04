@@ -18,6 +18,7 @@ import {
   Observable,
   of,
   map,
+  retry,
   shareReplay,
   switchMap,
   Subject,
@@ -131,7 +132,7 @@ export class PayrollComponent implements OnInit {
     });
 
     this.form.controls['taxYear'].valueChanges.subscribe((value) => {
-      this.payruns$ = this.payRunService.getAll(this.employerID, value);
+      this.payruns$ = this.payRunService.getAll(this.employerID, value).pipe(retry(3));
     });
 
     this.loading[0] = true;
