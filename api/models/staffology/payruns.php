@@ -48,7 +48,7 @@ class PayRuns
     }
 
     /**
-    * Employer Id setter
+    * Tax Year setter
     */
     public function setTaxYear(string $taxYear)
     {
@@ -57,7 +57,7 @@ class PayRuns
     }
 
     /**
-     * Employer ID getter.
+     * Tax Year getter.
      */
     public function getTaxYear(): string
     {
@@ -128,10 +128,10 @@ class PayRuns
                         "version" => $metadata['version'] ?? 0,
                         "isLatestVersion" => $metadata['isLatestVersion'] ?? true,
                     );
-
-                // Sort by tax month ascending
-                usort($items, fn ($a, $b) => $a['taxMonth'] <=> $b['taxMonth']);
             }
+
+            // Sort by tax month ascending
+            usort($items, fn ($a, $b) => $a['taxMonth'] <=> $b['taxMonth']);            
         } else {
             throw new \Exception("Unexpected response from Staffology API when retrieving PayRuns. Not an Array.");
         }

@@ -31,7 +31,7 @@ class PayRunCtl
 
             echo json_encode($payruns, JSON_NUMERIC_CHECK);
         } catch (Exception $e) {
-            Error::response("Error retrieving details of all Rules.", $e);
+            Error::response("Error retrieving details of all Payruns.", $e);
         }
     }
 
@@ -77,7 +77,7 @@ class PayRunCtl
             }
 
         } catch (Exception $e) {
-            Error::response("Error retrieving details of all Rules.", $e);
+            Error::response("Error retrieving details of most recent Payrun.", $e);
         }
     }
 
