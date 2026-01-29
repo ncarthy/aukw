@@ -24,8 +24,7 @@ This system is primarily for Age UK Westminster staff and volunteers responsible
 The system is hosted on a secure web server and can be accessed through the Age UK Westminster portal. Authorized users receive login credentials to ensure secure access.
 
 ## Contact
-For support or more information, contact the Age UK Westminster finance team at:
-📧 neil.carthy@ageukwestminster.org.uk
+For support or more information, contact the Age UK Westminster finance team at: neil.carthy@ageukwestminster.org.uk
 
 ## Credits
 Project structure and authorization methodology from [Jason Watmore](https://jasonwatmore.com/angular-15-auth-boilerplate-sign-up-with-verification-login-and-forgot-password).
