@@ -270,7 +270,7 @@ export class PayrollService {
         // Round to avoid numbers like 65.4000000000004
         alloc.amount = Number(alloc.amount.toFixed(2));
       }
-      if (alloc.amount) entry.totalPay.push(alloc);
+      entry.totalPay.push(alloc);
     }
 
     return entry;
