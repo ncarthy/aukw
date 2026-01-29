@@ -149,39 +149,48 @@ export class MonthlySalesChartComponent implements OnInit {
            */
           if (
             this.optionsSimpleBarChart.series &&
-            this.optionsSimpleBarChart.series[0] &&
-            this.optionsSimpleBarChart.series[0].type === 'column'
+            this.optionsSimpleBarChart.series[0]
           ) {
-            this.optionsSimpleBarChart.series[0].data?.push(value.sales);
+            let seriesOptionsType = this.optionsSimpleBarChart
+              .series[0] as Highcharts.SeriesOptionsType;
+            if (seriesOptionsType && seriesOptionsType.type === 'column') {
+              seriesOptionsType.data = seriesOptionsType.data || [];
+              seriesOptionsType.data?.push(value.sales);
+            }
           }
+
           if (this.optionsStackedBarChart.series) {
-            if (
-              this.optionsStackedBarChart.series[0] &&
-              this.optionsStackedBarChart.series[0].type === 'column'
-            ) {
-              this.optionsStackedBarChart.series[0].data?.push(
-                value.avg_clothing,
-              );
+            if (this.optionsStackedBarChart.series[0]) {
+              let seriesOptionsType = this.optionsStackedBarChart
+                .series[0] as Highcharts.SeriesOptionsType;
+              if (seriesOptionsType && seriesOptionsType.type === 'column') {
+                seriesOptionsType.data = seriesOptionsType.data || [];
+                seriesOptionsType.data?.push(value.avg_clothing);
+              }
             }
-            if (
-              this.optionsStackedBarChart.series[0] &&
-              this.optionsStackedBarChart.series[1].type === 'column'
-            ) {
-              this.optionsStackedBarChart.series[1].data?.push(value.avg_brica);
+            if (this.optionsStackedBarChart.series[1]) {
+              let seriesOptionsType = this.optionsStackedBarChart
+                .series[1] as Highcharts.SeriesOptionsType;
+              if (seriesOptionsType && seriesOptionsType.type === 'column') {
+                seriesOptionsType.data = seriesOptionsType.data || [];
+                seriesOptionsType.data?.push(value.avg_brica);
+              }
             }
-            if (
-              this.optionsStackedBarChart.series[0] &&
-              this.optionsStackedBarChart.series[2].type === 'column'
-            ) {
-              this.optionsStackedBarChart.series[2].data?.push(value.avg_books);
+            if (this.optionsStackedBarChart.series[2]) {
+              let seriesOptionsType = this.optionsStackedBarChart
+                .series[2] as Highcharts.SeriesOptionsType;
+              if (seriesOptionsType && seriesOptionsType.type === 'column') {
+                seriesOptionsType.data = seriesOptionsType.data || [];
+                seriesOptionsType.data?.push(value.avg_books);
+              }
             }
-            if (
-              this.optionsStackedBarChart.series[0] &&
-              this.optionsStackedBarChart.series[3].type === 'column'
-            ) {
-              this.optionsStackedBarChart.series[3].data?.push(
-                value.avg_linens,
-              );
+            if (this.optionsStackedBarChart.series[3]) {
+              let seriesOptionsType = this.optionsStackedBarChart
+                .series[3] as Highcharts.SeriesOptionsType;
+              if (seriesOptionsType && seriesOptionsType.type === 'column') {
+                seriesOptionsType.data = seriesOptionsType.data || [];
+                seriesOptionsType.data?.push(value.avg_linens);
+              }
             }
           }
         },

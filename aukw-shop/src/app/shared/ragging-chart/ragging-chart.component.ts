@@ -74,9 +74,14 @@ export class RaggingChartComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['raggingChartData']) {
+      /* The elaborate if statement below is to allow typescript to
+       * detect the presence of the 'data' property.
+       */
       if (this.options.series && this.raggingChartData) {
-        if (this.options.series[0] && this.options.series[0].type === 'line') {
-          this.options.series[0].data = this.raggingChartData.total;
+        let seriesOptionsType = this.options
+          .series[0] as Highcharts.SeriesOptionsType;
+        if (seriesOptionsType && seriesOptionsType.type === 'line') {
+          seriesOptionsType.data = this.raggingChartData.total;
         }
 
         /**
