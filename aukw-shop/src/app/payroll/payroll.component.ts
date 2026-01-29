@@ -134,7 +134,9 @@ export class PayrollComponent implements OnInit {
     });
 
     this.form.controls['taxYear'].valueChanges.subscribe((value) => {
-      this.payruns$ = this.payRunService.getAll(this.employerID, value).pipe(retry(3));
+      this.payruns$ = this.payRunService
+        .getAll(this.employerID, value)
+        .pipe(retry(3));
     });
 
     this.loading[0] = true;
@@ -272,11 +274,13 @@ export class PayrollComponent implements OnInit {
     } else {
       // Create employee name from payslip data
 
-      this.employeeService.getByPayrollNumber(this.employerID, payslip.payrollNumber).subscribe({
-        next: (emp) => {
-                offcanvasRef.componentInstance.employeeName = emp;
-        }});
-
+      this.employeeService
+        .getByPayrollNumber(this.employerID, payslip.payrollNumber)
+        .subscribe({
+          next: (emp) => {
+            offcanvasRef.componentInstance.employeeName = emp;
+          },
+        });
     }
 
     // Reload everything after offcanvas is closed

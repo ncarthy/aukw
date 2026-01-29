@@ -20,9 +20,7 @@ export class EmployeeService {
    * @returns Array of PayRun objects
    */
   getAll(employerID: string): Observable<EmployeeName[]> {
-    return this.http.get<EmployeeName[]>(
-      `${baseUrl}/${employerID}/employees`,
-    );
+    return this.http.get<EmployeeName[]>(`${baseUrl}/${employerID}/employees`);
   }
 
   /**
@@ -31,8 +29,13 @@ export class EmployeeService {
    * @param payrollNumber Iris payroll number for employee
    * @returns Array of PayRun objects
    */
-  getByPayrollNumber(employerID: string, payrollNumber: number): Observable<EmployeeName> {
-    return this.http.get<EmployeeName>(`${baseUrl}/${employerID}/employees/${payrollNumber}`);
+  getByPayrollNumber(
+    employerID: string,
+    payrollNumber: number,
+  ): Observable<EmployeeName> {
+    return this.http.get<EmployeeName>(
+      `${baseUrl}/${employerID}/employees/${payrollNumber}`,
+    );
   }
 
   /**
@@ -41,7 +44,12 @@ export class EmployeeService {
    * @param employeeID The Staffology Employee ID (uuid format)
    * @returns Array of PayRun objects
    */
-  getByEmployeeId(employerID: string, employeeId: string): Observable<EmployeeName> {
-    return this.http.get<EmployeeName>(`${baseUrl}/${employerID}/employees/${employeeId}`);
+  getByEmployeeId(
+    employerID: string,
+    employeeId: string,
+  ): Observable<EmployeeName> {
+    return this.http.get<EmployeeName>(
+      `${baseUrl}/${employerID}/employees/${employeeId}`,
+    );
   }
 }

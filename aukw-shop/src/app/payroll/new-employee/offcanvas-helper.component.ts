@@ -15,7 +15,6 @@ import { NewEmployeeOffcanvasComponent } from './new-employee-offcanvas.componen
   imports: [],
 })
 export class OffcanvasHelperComponent {
-
   private offcanvasService = inject(NgbOffcanvas);
   private alertService = inject(AlertService);
   private employeeService = inject(EmployeeService);
@@ -23,7 +22,7 @@ export class OffcanvasHelperComponent {
 
   @Input() payslip: IrisPayslip = new IrisPayslip();
   @Input() employees: EmployeeName[] = [];
-  
+
   launch(): void {
     const offcanvasRef = this.offcanvasService.open(
       NewEmployeeOffcanvasComponent,
@@ -40,11 +39,13 @@ export class OffcanvasHelperComponent {
     } else {
       // Create employee name from payslip data
 
-      this.employeeService.getByPayrollNumber(this.employerID, this.payslip.payrollNumber).subscribe({
-        next: (emp) => {
-                offcanvasRef.componentInstance.employeeName = emp;
-        }});
-
+      this.employeeService
+        .getByPayrollNumber(this.employerID, this.payslip.payrollNumber)
+        .subscribe({
+          next: (emp) => {
+            offcanvasRef.componentInstance.employeeName = emp;
+          },
+        });
     }
 
     // Reload everything after offcanvas is closed
@@ -62,5 +63,4 @@ export class OffcanvasHelperComponent {
   }
 
   reloadEverything() {}
-
 }

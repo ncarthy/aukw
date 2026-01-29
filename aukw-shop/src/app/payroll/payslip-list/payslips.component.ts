@@ -1,4 +1,11 @@
-import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { mergeMap, scan, Subject, takeUntil, tap } from 'rxjs';
 import { PayslipListComponent } from './list/list.component';
 import { QBPayrollService } from '@app/_services';
@@ -44,7 +51,6 @@ export class PayslipsComponent implements OnInit {
         // loop through all payslips and sum the values to form a
         // "total" payslip that will be put in class level variable
         scan((prev: IrisPayslip, current) => {
-
           // If we reach a payslip for payrollNumber 7, reset the total
           // Doing this because the 'prev' variable can hold data from
           // previous subscriptions (not sure why). PayrollNumber 7 is
@@ -65,7 +71,5 @@ export class PayslipsComponent implements OnInit {
       });
   }
 
-  addEmployee(payslip: IrisPayslip) {
-
-  }
+  addEmployee(payslip: IrisPayslip) {}
 }
