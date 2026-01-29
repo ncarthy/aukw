@@ -343,7 +343,11 @@ export class PayrollComponent implements OnInit {
         return '';
       }
 
-      const year = Number(taxYear.substring(4));
+      let year = Number(taxYear.substring(4));
+      if (fiscalMonthNumber >= 10) {
+        // Months Jan, Feb and Mar belong to next calendar year
+        year++;
+      }
 
       const dt = new Date(year, monthNumber, 25);
 
