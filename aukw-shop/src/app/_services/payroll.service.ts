@@ -141,7 +141,7 @@ export class PayrollService {
                 );
               }
 
-              // Handle edge case: Calculated amount is close to but less than remainder
+              // Handle edge case: Calculated amount is less than a pound form the remainder amount
               // In that case then use the remainder
               if (Math.abs(remainder - calculatedAllocatedAmount) < 1)
                 calculatedAllocatedAmount = Number(remainder.toFixed(2));

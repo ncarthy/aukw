@@ -40,6 +40,7 @@ import {
 } from '@app/_services/payroll';
 import {
   AlertService,
+  EmployeeService,
   LoadingIndicatorService,
   PayrollApiAdapterService,
   PayrollTransactionsService,
@@ -116,6 +117,7 @@ export class PayrollComponent implements OnInit {
   private locale = inject(LOCALE_ID);
   private payrollApiAdapterService = inject(PayrollApiAdapterService);
   private payrollTransactionsService = inject(PayrollTransactionsService);
+  private employeeService = inject(EmployeeService);
 
   constructor() {
     this.payruns$ = of([]);
@@ -269,27 +271,12 @@ export class PayrollComponent implements OnInit {
       );
     } else {
       // Create employee name from payslip data
-      var firstName = '';
-      var lastName = '';
-      const nameParts = payslip.employeeName.split(' ');
-      if (nameParts.length > 0) {
-        firstName = nameParts[0];
-        if (firstName == 'Ms' || firstName == 'Mr' || firstName == 'Mrs') {
-          // Prefix detected - skip to next part
-          if (nameParts.length > 1) {
-            firstName = nameParts[1];
-            lastName = nameParts.slice(2).join(' ');
-          }
-        } else {
-          lastName = nameParts.slice(1).join(' ');
-        }
-      }
 
-      offcanvasRef.componentInstance.employeeName = {
-        payrollNumber: payslip.payrollNumber,
-        firstName: firstName,
-        lastName: lastName,
-      };
+      this.employeeService.getByPayrollNumber(this.employerID, payslip.payrollNumber).subscribe({
+        next: (emp) => {
+                offcanvasRef.componentInstance.employeeName = emp;
+        }});
+
     }
 
     // Reload everything after offcanvas is closed

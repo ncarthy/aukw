@@ -1,11 +1,10 @@
-import { Component, DestroyRef, inject, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { mergeMap, scan, Subject, takeUntil, tap } from 'rxjs';
 import { PayslipListComponent } from './list/list.component';
 import { QBPayrollService } from '@app/_services';
 import { IrisPayslip } from '@app/_models';
 
 @Component({
-  selector: 'payslips',
   imports: [PayslipListComponent],
   templateUrl: './payslips.component.html',
 })
@@ -66,5 +65,7 @@ export class PayslipsComponent implements OnInit {
       });
   }
 
-  addEmployee(payslip: IrisPayslip) {}
+  addEmployee(payslip: IrisPayslip) {
+
+  }
 }

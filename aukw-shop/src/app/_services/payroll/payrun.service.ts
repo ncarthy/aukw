@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 const baseUrl = `${environment.apiUrl}/payroll`;
 
 /**
- * This class has a single method which returns a array of PayRuns
+ * This service provides methods to interact with PayRun data
  */
 @Injectable({ providedIn: 'root' })
 export class PayRunService {
@@ -16,6 +16,8 @@ export class PayRunService {
 
   /**
    * Get a list of the names of all available PayRuns
+   * @param employerID The Staffology Employer ID (uuid format)
+   * @param taxYear The payroll tax year (e.g. 2023/2024)
    * @returns Array of PayRun objects
    */
   getAll(employerID: string, taxYear: string): Observable<PayRun[]> {
@@ -27,6 +29,7 @@ export class PayRunService {
   /**
    * Get the most recent 'Closed' Pay Run
    * An 'Open' pay run might not yet have employees allocated to it.
+   * @param employerID The Staffology Employer ID (uuid format)
    * @returns Array of PayRun objects
    */
   getLatest(employerID: string): Observable<PayRun> {
