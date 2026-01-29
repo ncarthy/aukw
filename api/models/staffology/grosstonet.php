@@ -215,6 +215,13 @@ class GrossToNetReport
 
         if (isset($report['model']) && isset($report['model']['lines']) && is_array($report['model']['lines'])) {
             foreach ($report['model']['lines'] as $payslip) {
+                if  ($payslip['totalGross'] == 0 && $payslip['tax'] == 0 && $payslip['employeeNi'] == 0 &&
+                            $payslip['studentOrPgLoan'] == 0 && $payslip['netPay'] == 0 &&
+                            $payslip['employerNi'] == 0 && $payslip['employerPension'] == 0 &&
+                            $payslip['employeePension'] == 0    ) {
+                    // Skip employees with zero pay
+                    continue;
+                }
                 $salaryData[] = $payslip;
             }
         } else {
