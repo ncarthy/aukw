@@ -6,7 +6,7 @@
 * the cpsess, which can then be used by db_clone.sh
 * to download sql backup files.
 *
-* Note: Must provide cpanel password on line 14 before using
+* Note: Must provide cpanel password on line 17 before using
 *
 * Must hafve write access to the $cookies file location* 
 * (/root/aukw/cookies.txt).
@@ -15,7 +15,7 @@
 
 $cp_user = "aukworgu";
 $cp_pwd = "<<<PLEASE_PROVIDE>>>";
-$url = "https://cov-cp9.ahcloud.co.uk:2083/login";
+$url = "https://web0.ahcloud.co.uk:2083/login";
 $cookies = "/root/aukw/cookies.txt";
 
 
