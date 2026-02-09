@@ -44,7 +44,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.grossPay
+        (p) => p.totalPay
       );
 
       expect(results.length).toBe(2);
@@ -62,7 +62,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.grossPay
+        (p) => p.totalPay
       );
 
       expect(results.length).toBe(2);
@@ -77,7 +77,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.grossPay
+        (p) => p.totalPay
       );
 
       expect(results.length).toBe(0);
@@ -90,7 +90,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.grossPay
+        (p) => p.totalPay
       );
 
       expect(results.length).toBe(1);
@@ -160,8 +160,8 @@ describe('PayrollCalculationService', () => {
       const results = service.allocateByRules(1000, allocations, 1);
 
       expect(results.length).toBe(2);
-      expect(results[0].percentage).not.toBe(0);
-      expect(results[1].percentage).not.toBe(0);
+      expect(results[0].amount).toBeGreaterThan(0);
+      expect(results[1].amount).toBeGreaterThan(0);
     });
   });
 
@@ -263,7 +263,7 @@ describe('PayrollCalculationService', () => {
         createPayslip(3, 1500),
       ];
 
-      const total = service.calculateTotal(payslips, (p) => p.grossPay);
+      const total = service.calculateTotal(payslips, (p) => p.totalPay);
 
       expect(total).toBe(4500);
     });
@@ -271,13 +271,13 @@ describe('PayrollCalculationService', () => {
     it('should round total to two decimals', () => {
       const payslips = [createPayslip(1, 33.333), createPayslip(2, 66.667)];
 
-      const total = service.calculateTotal(payslips, (p) => p.grossPay);
+      const total = service.calculateTotal(payslips, (p) => p.totalPay);
 
       expect(total).toBe(100);
     });
 
     it('should handle empty payslips', () => {
-      const total = service.calculateTotal([], (p) => p.grossPay);
+      const total = service.calculateTotal([], (p) => p.totalPay);
 
       expect(total).toBe(0);
     });
@@ -357,10 +357,10 @@ describe('PayrollCalculationService', () => {
   // HELPER FUNCTIONS
   // ==========================================
 
-  function createPayslip(payrollNumber: number, grossPay: number): IrisPayslip {
+  function createPayslip(payrollNumber: number, totalPay: number): IrisPayslip {
     const payslip = new IrisPayslip();
     payslip.payrollNumber = payrollNumber;
-    payslip.grossPay = grossPay;
+    payslip.totalPay = totalPay;
     return payslip;
   }
 
@@ -372,15 +372,15 @@ describe('PayrollCalculationService', () => {
   ): EmployeeAllocation {
     return {
       payrollNumber,
-      quickbooksId: '123',
+      quickbooksId: 123,
       name: 'Test Employee',
       percentage,
       class: classId,
       className,
-      account: '200',
+      account: 200,
       accountName: 'Salaries',
       isShopEmployee: false,
-    };
+    } as EmployeeAllocation;
   }
 
   function createLineItem(

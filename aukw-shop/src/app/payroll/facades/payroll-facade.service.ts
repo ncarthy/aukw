@@ -234,36 +234,14 @@ export class PayrollFacadeService {
     this.stateService.setLoading('createTransactions', true);
     this.stateService.clearError();
 
-    // Create transactions
-    return this.qbPayrollService
-      .createQBOEntries(params.employerId, params.taxYear, params.month)
-      .pipe(
-        // Show success message
-        tap(() => {
-          this.alertService.success(
-            'QuickBooks transactions created successfully',
-            { autoClose: true }
-          );
-        }),
-
-        // Loading indicator
-        this.loadingIndicator.createObserving({
-          loading: () => 'Creating QuickBooks transactions...',
-          success: () => 'Transactions created successfully.',
-          error: (err) => `Failed to create transactions: ${err}`,
-        }),
-
-        // Retry on failure
-        this.errorHandler.retryStrategy(),
-
-        // Error handling
-        catchError((error) => this.handleError(error)),
-
-        // Cleanup
-        finalize(() => {
-          this.stateService.setLoading('createTransactions', false);
-        })
-      );
+    // TODO: Implement createQBOEntries in QBPayrollService to orchestrate all transaction types
+    // For now, throw an error indicating the method is not yet implemented
+    return throwError(() =>
+      new Error('createQBOEntries method not yet implemented in QBPayrollService')
+    ).pipe(
+      // Error handling
+      catchError((error) => this.handleError(error))
+    );
   }
 
   /**

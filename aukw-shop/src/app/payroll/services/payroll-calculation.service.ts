@@ -272,7 +272,7 @@ export class PayrollCalculationService {
     return new LineItemDetail({
       quickbooksId: Number(allocation.quickbooksId),
       name: allocation.name,
-      account: allocation.account,
+      account: String(allocation.account),
       accountName: allocation.accountName,
       class: allocation.class,
       className: allocation.className,

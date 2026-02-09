@@ -198,15 +198,15 @@ describe('PayrollStateService', () => {
       const allocations: EmployeeAllocation[] = [
         {
           payrollNumber: 1,
-          quickbooksId: '123',
+          quickbooksId: 123,
           name: 'Test',
           percentage: 100,
           class: '100',
           className: 'Admin',
-          account: '200',
+          account: 200,
           accountName: 'Salaries',
           isShopEmployee: false,
-        },
+        } as EmployeeAllocation,
       ];
 
       service.setAllocations(allocations);
@@ -228,8 +228,10 @@ describe('PayrollStateService', () => {
       const employees: EmployeeName[] = [
         {
           payrollNumber: 1,
-          quickbooksId: '123',
+          quickbooksId: 123,
+          name: 'John Doe',
           firstName: 'John',
+          middleName: '',
           lastName: 'Doe',
         } as EmployeeName,
       ];
@@ -268,12 +270,12 @@ describe('PayrollStateService', () => {
   describe('Total', () => {
     it('should set total payslip', (done) => {
       const total = new IrisPayslip();
-      total.grossPay = 10000;
+      total.totalPay = 10000;
 
       service.setTotal(total);
 
       service.total$.pipe(take(1)).subscribe((result) => {
-        expect(result.grossPay).toBe(10000);
+        expect(result.totalPay).toBe(10000);
         done();
       });
     });
