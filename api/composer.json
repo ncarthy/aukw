@@ -7,6 +7,23 @@
         "composer/ca-bundle": "^1.5"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.89"
+        "friendsofphp/php-cs-fixer": "^3.89",
+        "phpunit/phpunit": "^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Services\\": "services/",
+            "Validators\\": "validators/",
+            "Config\\": "config/",
+            "Errors\\": "errors/",
+            "Models\\": "models/",
+            "Core\\": "core/",
+            "Controllers\\": "controllers/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     }
 }

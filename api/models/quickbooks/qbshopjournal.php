@@ -28,12 +28,22 @@ class QuickbooksEnterprisesJournal extends QuickbooksJournal
     }
 
     /**
-     * Create the general journal entry for the shop
+     * Create the general journal entry for the shop using the new factory approach
+     *
+     * @param array $entries Array of shop payroll entries
+     * @param bool $useFactory Whether to use the new factory method (default: true)
      * @return array|false On success return an array with details of the new object. On failure return 'false'.
      */
-    public function create_enterprises_journal($entries): array|false
+    public function create_enterprises_journal($entries, bool $useFactory = true): array|false
     {
+        if ($useFactory) {
+            // New approach: use factory
+            return $this->createJournalEntry('shop_payroll', [
+                'entries' => $entries
+            ]);
+        }
 
+        // Old approach: manual line creation (kept for backward compatibility)
         $payrolljournal = array(
             "TxnDate" => $this->TxnDate,
             "DocNumber" => $this->DocNumber,

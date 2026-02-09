@@ -28,13 +28,22 @@ class QuickbooksEmployerNIJournal extends QuickbooksJournal
     }
 
     /**
-     * Create the general journal entry for Employer NI
+     * Create the general journal entry for Employer NI using the new factory approach
      *
+     * @param array $entries Array of employer NI entries
+     * @param bool $useFactory Whether to use the new factory method (default: true)
      * @return array|false On success return an array with details of the new object. On failure return 'false'.
      */
-    public function create_employerNI_journal($entries): array|false
+    public function create_employerNI_journal($entries, bool $useFactory = true): array|false
     {
+        if ($useFactory) {
+            // New approach: use factory
+            return $this->createJournalEntry('employer_ni', [
+                'entries' => $entries
+            ]);
+        }
 
+        // Old approach: manual line creation (kept for backward compatibility)
         $payrolljournal = array(
             "TxnDate" => $this->TxnDate,
             "DocNumber" => $this->DocNumber,

@@ -190,13 +190,29 @@ class QuickbooksPayrollJournal extends QuickbooksJournal
     }
 
     /**
-     * Create a general journal in QBO
+     * Create a general journal in QBO using the new factory approach
      *
+     * @param bool $useFactory Whether to use the new factory method (default: true)
      * @return array|false On success return an array with details of the new object. On failure return 'false'.
      */
-    public function create_employee_journal(): array|false
+    public function create_employee_journal(bool $useFactory = true): array|false
     {
+        if ($useFactory) {
+            // New approach: use factory
+            return $this->createJournalEntry('employee', [
+                'quickbooksEmployeeId' => $this->quickbooksEmployeeId,
+                'grossSalary' => $this->grossSalary,
+                'netSalary' => $this->netSalary,
+                'paye' => $this->paye,
+                'employeeNI' => $this->employeeNI,
+                'salarySacrifice' => $this->salarySacrifice,
+                'employeePensionContribution' => $this->employeePensionContribution,
+                'studentLoan' => $this->studentLoan,
+                'otherDeduction' => $this->otherDeduction,
+            ]);
+        }
 
+        // Old approach: manual line creation (kept for backward compatibility)
         $payrolljournal = array(
             "TxnDate" => $this->TxnDate,
             "DocNumber" => $this->DocNumber,

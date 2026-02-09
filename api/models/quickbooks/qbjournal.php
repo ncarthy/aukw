@@ -7,6 +7,9 @@ use QuickBooksOnline\API\Exception\IdsException;
 use QuickBooksOnline\API\Facades\JournalEntry;
 use QuickBooksOnline\API\Exception\SdkException;
 use ReflectionException;
+use Services\JournalLineFactory;
+use Validators\PayrollValidator;
+use Errors\QuickBooksApiException;
 
 /**
  * Factory class that provides data about QBO General Journals.
@@ -42,6 +45,20 @@ class QuickbooksJournal
      * @var string
      */
     protected string $DocNumber;
+
+    /**
+     * Journal line factory for building lines
+     *
+     * @var JournalLineFactory|null
+     */
+    protected ?JournalLineFactory $factory = null;
+
+    /**
+     * Validator for input validation
+     *
+     * @var PayrollValidator|null
+     */
+    protected ?PayrollValidator $validator = null;
 
     /**
      * ID setter
@@ -124,6 +141,129 @@ class QuickbooksJournal
     public static function getInstance()
     {
         return new self();
+    }
+
+    /**
+     * Set the journal line factory
+     *
+     * @param JournalLineFactory $factory
+     * @return self
+     */
+    public function setFactory(JournalLineFactory $factory): self
+    {
+        $this->factory = $factory;
+        return $this;
+    }
+
+    /**
+     * Get the journal line factory (create if not exists)
+     *
+     * @return JournalLineFactory
+     */
+    protected function getFactory(): JournalLineFactory
+    {
+        if ($this->factory === null) {
+            $this->factory = new JournalLineFactory();
+        }
+        return $this->factory;
+    }
+
+    /**
+     * Set the validator
+     *
+     * @param PayrollValidator $validator
+     * @return self
+     */
+    public function setValidator(PayrollValidator $validator): self
+    {
+        $this->validator = $validator;
+        return $this;
+    }
+
+    /**
+     * Get the validator (create if not exists)
+     *
+     * @return PayrollValidator
+     */
+    protected function getValidator(): PayrollValidator
+    {
+        if ($this->validator === null) {
+            $this->validator = new PayrollValidator();
+        }
+        return $this->validator;
+    }
+
+    /**
+     * Create a journal entry using the factory
+     *
+     * This is a common method that can be used by all child classes to create
+     * journal entries without duplicating code.
+     *
+     * @param string $transactionType Transaction type identifier
+     * @param array $data Transaction data
+     * @param bool $validate Whether to validate before posting (default: true)
+     * @return array|false On success return array with id, date, label. On failure return false.
+     */
+    protected function createJournalEntry(string $transactionType, array $data, bool $validate = true): array|false
+    {
+        try {
+            $factory = $this->getFactory();
+
+            // Build complete journal entry
+            $journalEntry = $factory->buildJournalEntry(
+                $transactionType,
+                $data,
+                $this->TxnDate,
+                $this->DocNumber,
+                $validate
+            );
+
+            // Additional validation if requested
+            if ($validate) {
+                $validator = $this->getValidator();
+                $validator->validateJournalEntry($journalEntry);
+            }
+
+            // Create QuickBooks resource object
+            $theResourceObj = JournalEntry::create($journalEntry);
+
+            // Prepare data service
+            $auth = new QuickbooksAuth();
+            $dataService = $auth->prepare($this->getrealmId());
+
+            // Add to QuickBooks
+            $resultingObj = $dataService->Add($theResourceObj);
+
+            // Check for errors
+            $error = $dataService->getLastError();
+            if ($error) {
+                throw QuickBooksApiException::fromSdkError($error, $journalEntry, $this->realmid);
+            }
+
+            return [
+                "id" => $resultingObj->Id,
+                "date" => $this->TxnDate,
+                "label" => $this->DocNumber
+            ];
+
+        } catch (QuickBooksApiException $e) {
+            // Re-throw QuickBooks exceptions
+            throw $e;
+        } catch (\Exception $e) {
+            // Wrap other exceptions
+            throw new QuickBooksApiException(
+                "Failed to create journal entry: " . $e->getMessage(),
+                QuickBooksApiException::ERROR_NETWORK_FAILURE,
+                null,
+                null,
+                null,
+                null,
+                $this->realmid,
+                [],
+                0,
+                $e
+            );
+        }
     }
 
     /**
