@@ -227,7 +227,16 @@ class QuickbooksEmployee
                 );
                 if ($item->EmployeeNumber) {
                     if ($associateByName) {
-                        $employeeArray[$item->DisplayName] = $employee;
+                        if ($fullName == '') {
+                            $fullName = $item->DisplayName ?? '';
+                        }
+                        if ($employeeArray[$fullName] ?? false) {
+                            throw new \Exception("Duplicate employee name found in QBO: " . 
+                                $fullName . 
+                                ". Please ensure all employees have unique names or use the 'readAll' method instead of 'readAllAssociatedByName'."
+                            );
+                        }
+                        $employeeArray[$fullName] = $employee;
                     } else {
                         $employeeArray[$item->Id] = $employee;
                     }
