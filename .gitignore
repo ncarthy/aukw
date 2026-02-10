@@ -13,3 +13,4 @@ database/auew*.json
 database/aukw*.json
 ## PHP CS Fixer cache files
 .php-cs-fixer.cache
+api/.phpunit.result.cache

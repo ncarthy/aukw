@@ -4,3 +4,6 @@
 
 ## PHP CS Fixer cache files
 .php-cs-fixer.cache
+
+## PHPUnit cache
+.phpunit.result.cache
