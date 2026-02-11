@@ -204,8 +204,14 @@ class QBPayrollQueryCtl
 
                     foreach ($bill->Line as $line) {
 
-                        // It's expected that the Employee name is in Description/Memo
-                        // if bill created by this system then it will be
+                        // It's expected that the Description/Memo of the employer pension contribution lines contains
+                        // the employee name, optionally with the payroll number in brackets. 
+                        // We use this to associate the pension costs with the relevant employee payslip.
+                        if (!preg_match('/(\d+)/', $line->Description, $matches)) {
+                            $name = trim(preg_replace('/\([^)]*\)/', '', $line->Description)); // remove anything in brackets to get employee name
+                        } else {
+                            $name = trim(str_replace($matches[0], '', $line->Description)); // remove payroll number to get employee name   
+                        }
                         $name = $line->Description;
 
                         // Determine the account number and if it is a pension costs account

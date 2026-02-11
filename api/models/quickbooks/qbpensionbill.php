@@ -132,7 +132,7 @@ class QuickbooksPensionBill extends QuickbooksBill
             //&$line_array, $description, $amount, $class, $account, $taxcoderef)
             $this->bill_line(
                 $bill['Line'],
-                $pensionAllocation->name,
+                $pensionAllocation->name . ' (' . $pensionAllocation->payrollNumber . ')' ?? 'Employer pension contribution',
                 $pensionAllocation->amount,
                 $pensionAllocation->class,
                 $pensionAllocation->account == QBO::AUEW_ACCOUNT ? QBO::AUEW_ACCOUNT : QBO::PENSION_COSTS_ACCOUNT,

@@ -130,7 +130,8 @@ class PensionLineBuilder extends BaseJournalLineBuilder
                 : $this->getAccount('PENSION_COSTS_ACCOUNT');
 
             $line = $this->createLine(
-                $allocation->name ?? 'Employer pension contribution',
+                $allocation->name . ' (' . $allocation->payrollNumber . ')' 
+                                ?? 'Employer pension contribution',
                 $allocation->amount,
                 '', // No employee for employer costs
                 $allocation->class,
