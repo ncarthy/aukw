@@ -22,6 +22,7 @@ class ValidationException extends PayrollException
     public const ERROR_INVALID_DATE = 'VALIDATION_INVALID_DATE';
     public const ERROR_INVALID_AMOUNT = 'VALIDATION_INVALID_AMOUNT';
     public const ERROR_UNBALANCED_JOURNAL = 'VALIDATION_UNBALANCED_JOURNAL';
+    public const ERROR_INVALID_FIELD = 'VALIDATION_INVALID_FIELD';
     public const ERROR_MISSING_REQUIRED_FIELD = 'VALIDATION_MISSING_REQUIRED_FIELD';
     public const ERROR_INVALID_TRANSACTION_TYPE = 'VALIDATION_INVALID_TRANSACTION_TYPE';
     public const ERROR_INVALID_EMPLOYEE_ID = 'VALIDATION_INVALID_EMPLOYEE_ID';
@@ -187,6 +188,22 @@ class ValidationException extends PayrollException
             null
         );
     }
+
+    /**
+     * Create exception for invalid field
+     *
+     * @param string $field Field name
+     * @return static
+     */
+    public static function invalidField(string $field, string $message): static
+    {
+        return new static(
+            "Invalid field '{$field}': {$message}",
+            self::ERROR_INVALID_FIELD,
+            $field,
+            null
+        );
+    }    
 
     /**
      * Create exception for invalid transaction type

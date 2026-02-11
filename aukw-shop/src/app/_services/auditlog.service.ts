@@ -50,7 +50,7 @@ export class AuditLogService {
     objectid?: number,
   ): Observable<ApiMessage> {
     if (!user || (user && !user.id))
-      return of(new ApiMessage({ message: 'No user supplied' }));
+      return of({ message: 'No user supplied' } as ApiMessage);
 
     let logentry = new AuditLog();
     logentry.userid = user.id;

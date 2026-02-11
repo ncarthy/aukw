@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { environment } from '@environments/environment';
-import { IrisPayslip } from '@app/_models';
+import { IrisPayslip, ApiResponse } from '@app/_models';
 import { Observable } from 'rxjs';
 
 const baseUrl = `${environment.apiUrl}/payroll`;
@@ -31,8 +31,8 @@ export class GrossToNetService {
     payrollDate: string | null,
     sortBy: string | null,
     sortDescending: boolean,
-  ): Observable<IrisPayslip[]> {
-    return this.http.get<IrisPayslip[]>(
+  ): Observable<ApiResponse<IrisPayslip[]>> {
+    return this.http.get<ApiResponse<IrisPayslip[]>>(
       `${baseUrl}/${employerID}/reports/gross-to-net/${taxYear}/month/${month}` +
         `?sortBy=${sortBy == null ? 'PayrollCode' : sortBy}` +
         `${payrollDate == null ? '' : '&payrollDate=' + payrollDate}` +

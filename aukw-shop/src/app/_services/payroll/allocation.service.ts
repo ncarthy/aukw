@@ -171,7 +171,7 @@ export class AllocationsService {
 
       return editOrAdd$.pipe(
         switchMap((message) => {
-          employee.name.quickbooksId = message.id;
+          employee.name.quickbooksId = message.id || 0;
           return this.appendAllocationsToEmployee(employee);
         }),
       );

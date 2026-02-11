@@ -7,6 +7,7 @@ use Exception;
 use Models\Staffology\GrossToNetReport;
 use Models\Staffology\GrossToNetSortBy;
 use Models\Staffology\ParseGrosstoNetReport;
+use Services\PayrollDataProcessor;
 
 /**
  * Controller to retrieve Payroll report from Staffology API and parse it for use in the system.
@@ -61,7 +62,7 @@ class PayrollReportCtl
 
             $payslips = ParseGrosstoNetReport::parse($salaryData, $payrollDate);
 
-            echo json_encode($payslips, JSON_NUMERIC_CHECK);
+            echo json_encode( PayrollDataProcessor::processPayslips($payslips), JSON_NUMERIC_CHECK);
         } catch (Exception $e) {
             Error::response("Error retrieving Gross-To-Net report for " . $taxYear . " Month " . $month, $e);
         }

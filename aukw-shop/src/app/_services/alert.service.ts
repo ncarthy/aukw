@@ -2,7 +2,7 @@
 import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { Alert, AlertType } from '@app/_models';
+import { Alert, AlertType, ApiMessageType } from '@app/_models';
 
 @Injectable({ providedIn: 'root' })
 export class AlertService {
@@ -47,5 +47,20 @@ export class AlertService {
   // clear alerts
   clear(id = this.defaultId) {
     this.subject.next(new Alert(id));
+  }
+
+  static ApiMessageTypetoAlertType(apiMessageType: string): AlertType {
+    switch (apiMessageType) {
+      case 'error':
+        return AlertType.Error;
+      case 'info':
+        return AlertType.Info;
+      case 'warning':
+        return AlertType.Warning;
+      case 'success':
+        return AlertType.Success;
+      default:
+        return AlertType.Info;
+    } 
   }
 }

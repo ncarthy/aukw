@@ -45,8 +45,8 @@ class PayrollValidator
 
         // Validate DocNumber length
         if (strlen($journalData['DocNumber']) > PayrollConfig::QBO_DOCNUMBER_MAX_LENGTH) {
-            throw ValidationException::missingRequiredField('DocNumber')
-                ->setMessage("DocNumber exceeds maximum length of " . PayrollConfig::QBO_DOCNUMBER_MAX_LENGTH);
+            throw ValidationException::invalidField('DocNumber',
+                "DocNumber exceeds maximum length of " . PayrollConfig::QBO_DOCNUMBER_MAX_LENGTH);
         }
 
         // Validate lines array
