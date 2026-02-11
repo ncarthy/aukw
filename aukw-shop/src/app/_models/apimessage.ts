@@ -1,16 +1,42 @@
 ﻿/**
- * Simple class to store an id/string pair
+ * API message types
  */
-export class ApiMessage {
-  id: number;
-  message: string;
+export type ApiMessageType = 'info' | 'warning' | 'success' | 'error';
 
-  constructor(obj?: any) {
-    this.id = (obj && obj.id) || 0;
-    this.message = (obj && obj.message) || null;
-  }
+/**
+ * Individual message from the API
+ */
+export interface ApiMessage {
+  /** Message type/severity */
+  type: ApiMessageType;
+  /** Human-readable message */
+  message: string;
+  /** Additional context data */
+  context?: any;
+  /** When the message was created */
+  timestamp?: string;
+  /** Object ID */
+  id?: number;
 }
 
+/**
+ * Standardized API response structure
+ *
+ * Allows the backend to return data along with informational messages
+ * without stopping processing
+ */
+export interface ApiResponse<T = any> {
+  /** Whether the operation succeeded */
+  success: boolean;
+  /** The response data */
+  data: T;
+  /** Array of messages (info, warnings, errors) */
+  messages: ApiMessage[];
+}
+
+/**
+ * Response from the API when uploading a file
+ */
 export class UploadResponse {
   isEncrypted: boolean;
   message: string;

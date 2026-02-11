@@ -278,8 +278,8 @@ export class IntercoTradeComponent implements OnInit {
                 this.attachmentService.uploadAttachments(
                   this.otherRealmid,
                   [
-                    { value: response.purchase.id, type: 'Purchase' },
-                    { value: response.transfer.id, type: 'Transfer' },
+                    { value: response.purchase.id ?? 0, type: 'Purchase' },
+                    { value: response.transfer.id ?? 0, type: 'Transfer' },
                   ],
                   [
                     {

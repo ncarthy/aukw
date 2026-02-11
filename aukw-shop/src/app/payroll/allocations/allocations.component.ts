@@ -63,7 +63,7 @@ export class AllocationsComponent implements OnInit {
       (allocs) => (this.allocations = allocs),
     );
 
-    // Start initializing the component by downloading lsits of
+    // Start initializing the component by downloading lists of
     //  i) QBO classes; and
     // ii) QBO Employees
     forkJoin({
@@ -100,7 +100,9 @@ export class AllocationsComponent implements OnInit {
 
         switchMap((x) => {
           x.allocations.forEach((element) => {
-            this.assignEmployeeByAllocationStatus(element.name, x.grossToNet);
+            // Ignoring messages in GrossToNet ApiResponse as the allocations endpoint 
+            // only returns data, not messages
+            this.assignEmployeeByAllocationStatus(element.name, x.grossToNet.data);
           });
           return of(x.allocations);
         }),
@@ -115,7 +117,7 @@ export class AllocationsComponent implements OnInit {
   }
 
   /**
-   * From the list of all QBO employees, find thsoe that actually have
+   * From the list of all QBO employees, find those that actually have
    * project allocations. Of those, identify those that are missing
    * from the last pay run.
    * @param employee

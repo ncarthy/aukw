@@ -40,6 +40,7 @@ import {
 } from '@app/_services/payroll';
 import {
   AlertService,
+  ApiResponseHandler,
   EmployeeService,
   LoadingIndicatorService,
   PayrollApiAdapterService,
@@ -118,6 +119,7 @@ export class PayrollComponent implements OnInit {
   private payrollApiAdapterService = inject(PayrollApiAdapterService);
   private payrollTransactionsService = inject(PayrollTransactionsService);
   private employeeService = inject(EmployeeService);
+  private responseHandler = inject(ApiResponseHandler);
 
   constructor() {
     this.payruns$ = of([]);
@@ -194,6 +196,8 @@ export class PayrollComponent implements OnInit {
         this.f['payrollDate'].value,
         this.f['sortBy'].value,
         this.f['sortDescending'].value,
+      ).pipe(
+        map(response => this.responseHandler.handleResponse(response))
       );
 
       // Adapt the salary info into QuickBooks transaction-ready arrays
