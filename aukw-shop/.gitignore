@@ -46,5 +46,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Test screenshots
+# Vitest
+/html
 **/__screenshots__/
