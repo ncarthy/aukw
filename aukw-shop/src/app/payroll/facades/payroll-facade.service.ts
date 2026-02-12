@@ -128,7 +128,7 @@ export class PayrollFacadeService {
 
     // Adapt and process
     return this.payrollApiAdapter
-      .adaptStaffologyToQuickBooks(grossToNetReport$, employees, allocations)
+      .adaptStaffologyToQuickBooks(grossToNetReport$.pipe(map(response => response.data)), employees, allocations)
       .pipe(
         // Extract and update state
         map((result) => {
