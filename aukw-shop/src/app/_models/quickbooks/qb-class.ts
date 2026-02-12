@@ -1,4 +1,4 @@
-import { ValueStringIdPair } from '@app/_models';
+import { ValueStringIdPair } from './qb-account-list-entry';
 
 /**
  * A QBO class is another name for a Project. It is a label that can be assigned to

@@ -1,4 +1,4 @@
-import { ProfitAndLossData, PnlReportLineItem } from '@app/_models';
+import { ProfitAndLossData, PnlReportLineItem } from './profit-and-loss-data';
 
 export class InStoreSalesData extends ProfitAndLossData {
   ragging: PnlReportLineItem;
