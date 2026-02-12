@@ -10,7 +10,8 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, throwError, firstValueFrom, lastValueFrom, EmptyError } from 'rxjs';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PayrollFacadeService } from './payroll-facade.service';
 import { PayrollStateService } from '../state/payroll-state.service';
 import {
@@ -29,47 +30,46 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 describe('PayrollFacadeService', () => {
   let service: PayrollFacadeService;
-  let stateService: jasmine.SpyObj<PayrollStateService>;
-  let grossToNetService: jasmine.SpyObj<GrossToNetService>;
-  let payrollApiAdapter: jasmine.SpyObj<PayrollApiAdapterService>;
-  let qbPayrollService: jasmine.SpyObj<QBPayrollService>;
-  let alertService: jasmine.SpyObj<AlertService>;
+  let stateService: any;
+  let grossToNetService: any;
+  let payrollApiAdapter: any;
+  let qbPayrollService: any;
+  let alertService: any;
 
   beforeEach(() => {
     // Create spy objects
-    const stateServiceSpy = jasmine.createSpyObj('PayrollStateService', [
-      'setLoading',
-      'clearError',
-      'setPayslips',
-      'setTotal',
-      'setPayrollDate',
-      'setPayslipsWithMissingData',
-      'setShowCreateTransactionsButton',
-      'setError',
-      'snapshot',
-    ]);
+    const stateServiceSpy = {
+      setLoading: vi.fn(),
+      clearError: vi.fn(),
+      setPayslips: vi.fn(),
+      setTotal: vi.fn(),
+      setPayrollDate: vi.fn(),
+      setPayslipsWithMissingData: vi.fn(),
+      setShowCreateTransactionsButton: vi.fn(),
+      setError: vi.fn(),
+      snapshot: vi.fn(),
+    };
 
-    const grossToNetServiceSpy = jasmine.createSpyObj('GrossToNetService', [
-      'getAll',
-    ]);
+    const grossToNetServiceSpy = {
+      getAll: vi.fn(),
+    };
 
-    const payrollApiAdapterSpy = jasmine.createSpyObj(
-      'PayrollApiAdapterService',
-      ['adaptStaffologyToQuickBooks']
-    );
+    const payrollApiAdapterSpy = {
+      adaptStaffologyToQuickBooks: vi.fn(),
+    };
 
-    const qbPayrollServiceSpy = jasmine.createSpyObj('QBPayrollService', [
-      'createQBOEntries',
-    ]);
+    const qbPayrollServiceSpy = {
+      createQBOEntries: vi.fn(),
+    };
 
-    const alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'success',
-      'error',
-    ]);
+    const alertServiceSpy = {
+      success: vi.fn(),
+      error: vi.fn(),
+    };
 
-    const loadingIndicatorSpy = jasmine.createSpyObj('LoadingIndicatorService', [
-      'createObserving',
-    ]);
+    const loadingIndicatorSpy = {
+      createObserving: vi.fn(),
+    };
 
     // Configure TestBed
     TestBed.configureTestingModule({
@@ -85,22 +85,14 @@ describe('PayrollFacadeService', () => {
     });
 
     service = TestBed.inject(PayrollFacadeService);
-    stateService = TestBed.inject(
-      PayrollStateService
-    ) as jasmine.SpyObj<PayrollStateService>;
-    grossToNetService = TestBed.inject(
-      GrossToNetService
-    ) as jasmine.SpyObj<GrossToNetService>;
-    payrollApiAdapter = TestBed.inject(
-      PayrollApiAdapterService
-    ) as jasmine.SpyObj<PayrollApiAdapterService>;
-    qbPayrollService = TestBed.inject(
-      QBPayrollService
-    ) as jasmine.SpyObj<QBPayrollService>;
-    alertService = TestBed.inject(AlertService) as jasmine.SpyObj<AlertService>;
+    stateService = TestBed.inject(PayrollStateService);
+    grossToNetService = TestBed.inject(GrossToNetService);
+    payrollApiAdapter = TestBed.inject(PayrollApiAdapterService);
+    qbPayrollService = TestBed.inject(QBPayrollService);
+    alertService = TestBed.inject(AlertService);
 
     // Default spy return values
-    loadingIndicatorSpy.createObserving.and.returnValue((source: any) => source);
+    loadingIndicatorSpy.createObserving.mockReturnValue((source: any) => source);
   });
 
   it('should be created', () => {
@@ -112,15 +104,15 @@ describe('PayrollFacadeService', () => {
   // ==========================================
 
   describe('loadPayslips', () => {
-    it('should set loading state at start', (done) => {
+    it('should set loading state at start', async () => {
       const mockResult = {
         payslips: [new IrisPayslip()],
         total: new IrisPayslip(),
         payrollDate: '2024-01-31',
       };
 
-      grossToNetService.getAll.and.returnValue(of([new IrisPayslip()]));
-      payrollApiAdapter.adaptStaffologyToQuickBooks.and.returnValue(
+      grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
         of(mockResult)
       );
 
@@ -128,16 +120,14 @@ describe('PayrollFacadeService', () => {
       const employees: EmployeeName[] = [];
       const allocations: EmployeeAllocation[] = [];
 
-      service.loadPayslips(params, employees, allocations).subscribe(() => {
-        expect(stateService.setLoading).toHaveBeenCalledWith(
-          'downloadButton',
-          true
-        );
-        done();
-      });
+      await firstValueFrom(service.loadPayslips(params, employees, allocations));
+      expect(stateService.setLoading).toHaveBeenCalledWith(
+        'downloadButton',
+        true
+      );
     });
 
-    it('should update state with loaded payslips', (done) => {
+    it('should update state with loaded payslips', async () => {
       const mockPayslips = [new IrisPayslip()];
       const mockTotal = new IrisPayslip();
       const mockDate = '2024-01-31';
@@ -147,22 +137,20 @@ describe('PayrollFacadeService', () => {
         payrollDate: mockDate,
       };
 
-      grossToNetService.getAll.and.returnValue(of(mockPayslips));
-      payrollApiAdapter.adaptStaffologyToQuickBooks.and.returnValue(
+      grossToNetService.getAll.mockReturnValue(of(mockPayslips));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
         of(mockResult)
       );
 
       const params = createLoadParams();
 
-      service.loadPayslips(params, [], []).subscribe(() => {
-        expect(stateService.setPayslips).toHaveBeenCalledWith(mockPayslips);
-        expect(stateService.setTotal).toHaveBeenCalledWith(mockTotal);
-        expect(stateService.setPayrollDate).toHaveBeenCalledWith(mockDate);
-        done();
-      });
+      await firstValueFrom(service.loadPayslips(params, [], []));
+      expect(stateService.setPayslips).toHaveBeenCalledWith(mockPayslips);
+      expect(stateService.setTotal).toHaveBeenCalledWith(mockTotal);
+      expect(stateService.setPayrollDate).toHaveBeenCalledWith(mockDate);
     });
 
-    it('should identify payslips with missing data', (done) => {
+    it('should identify payslips with missing data', async () => {
       const payslipWithMissing = new IrisPayslip();
       payslipWithMissing.employeeMissingFromQBO = true;
 
@@ -172,58 +160,56 @@ describe('PayrollFacadeService', () => {
         payrollDate: '2024-01-31',
       };
 
-      grossToNetService.getAll.and.returnValue(of([payslipWithMissing]));
-      payrollApiAdapter.adaptStaffologyToQuickBooks.and.returnValue(
+      grossToNetService.getAll.mockReturnValue(of([payslipWithMissing]));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
         of(mockResult)
       );
 
       const params = createLoadParams();
 
-      service.loadPayslips(params, [], []).subscribe((result) => {
-        expect(result.payslipsWithMissingData.length).toBe(1);
-        expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
-          false
-        );
-        done();
-      });
+      const result = await firstValueFrom(service.loadPayslips(params, [], []));
+      expect(result.payslipsWithMissingData.length).toBe(1);
+      expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
+        false
+      );
     });
 
-    it('should enable create transactions button when no missing data', (done) => {
+    it('should enable create transactions button when no missing data', async () => {
       const mockResult = {
         payslips: [new IrisPayslip()],
         total: new IrisPayslip(),
         payrollDate: '2024-01-31',
       };
 
-      grossToNetService.getAll.and.returnValue(of([new IrisPayslip()]));
-      payrollApiAdapter.adaptStaffologyToQuickBooks.and.returnValue(
+      grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
         of(mockResult)
       );
 
       const params = createLoadParams();
 
-      service.loadPayslips(params, [], []).subscribe(() => {
-        expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
-          true
-        );
-        done();
-      });
+      await firstValueFrom(service.loadPayslips(params, [], []));
+      expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
+        true
+      );
     });
 
-    it('should handle errors gracefully', (done) => {
+    it('should handle errors gracefully', async () => {
       const error = new HttpErrorResponse({ status: 500 });
 
-      grossToNetService.getAll.and.returnValue(throwError(() => error));
+      grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
+        throwError(() => error)
+      );
 
       const params = createLoadParams();
 
-      service.loadPayslips(params, [], []).subscribe({
-        error: (err) => {
-          expect(stateService.setError).toHaveBeenCalled();
-          expect(alertService.error).toHaveBeenCalled();
-          done();
-        },
-      });
+      await expect(
+        firstValueFrom(service.loadPayslips(params, [], []))
+      ).rejects.toThrow();
+
+      expect(stateService.setError).toHaveBeenCalled();
+      expect(alertService.error).toHaveBeenCalled();
     });
   });
 
@@ -232,24 +218,22 @@ describe('PayrollFacadeService', () => {
   // ==========================================
 
   describe('reloadPayslips', () => {
-    it('should set reload loading state', (done) => {
+    it('should set reload loading state', async () => {
       const mockResult = {
         payslips: [new IrisPayslip()],
         total: new IrisPayslip(),
         payrollDate: '2024-01-31',
       };
 
-      grossToNetService.getAll.and.returnValue(of([new IrisPayslip()]));
-      payrollApiAdapter.adaptStaffologyToQuickBooks.and.returnValue(
+      grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
+      payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
         of(mockResult)
       );
 
       const params = createLoadParams();
 
-      service.reloadPayslips(params, [], []).subscribe(() => {
-        expect(stateService.setLoading).toHaveBeenCalledWith('reloadButton', true);
-        done();
-      });
+      await firstValueFrom(service.reloadPayslips(params, [], []));
+      expect(stateService.setLoading).toHaveBeenCalledWith('reloadButton', true);
     });
   });
 
@@ -258,8 +242,8 @@ describe('PayrollFacadeService', () => {
   // ==========================================
 
   describe('createTransactions', () => {
-    it('should validate state before creating transactions', (done) => {
-      stateService.snapshot.and.returnValue({
+    it('should validate state before creating transactions', async () => {
+      stateService.snapshot.mockReturnValue({
         payslips: [],
         payslipsWithMissingEmployeesOrAllocations: [],
       } as any);
@@ -270,16 +254,17 @@ describe('PayrollFacadeService', () => {
         month: 1,
       };
 
-      service.createTransactions(params).subscribe({
-        complete: () => {
-          expect(stateService.setError).toHaveBeenCalled();
-          done();
-        },
-      });
+      try {
+        await firstValueFrom(service.createTransactions(params));
+      } catch (err) {
+        // Observable completes without emitting (EMPTY), so firstValueFrom throws EmptyError
+        expect(err).toBeInstanceOf(EmptyError);
+      }
+      expect(stateService.setError).toHaveBeenCalled();
     });
 
-    it('should reject if missing data exists', (done) => {
-      stateService.snapshot.and.returnValue({
+    it('should reject if missing data exists', async () => {
+      stateService.snapshot.mockReturnValue({
         payslips: [new IrisPayslip()],
         payslipsWithMissingEmployeesOrAllocations: [new IrisPayslip()],
       } as any);
@@ -290,18 +275,19 @@ describe('PayrollFacadeService', () => {
         month: 1,
       };
 
-      service.createTransactions(params).subscribe({
-        complete: () => {
-          expect(stateService.setError).toHaveBeenCalled();
-          done();
-        },
-      });
+      try {
+        await firstValueFrom(service.createTransactions(params));
+      } catch (err) {
+        // Observable completes without emitting (EMPTY), so firstValueFrom throws EmptyError
+        expect(err).toBeInstanceOf(EmptyError);
+      }
+      expect(stateService.setError).toHaveBeenCalled();
     });
 
-    it('should create transactions when state is valid', (done) => {
+    it('should create transactions when state is valid', async () => {
       const mockPayslips = [new IrisPayslip()];
       const mockAllocations: EmployeeAllocation[] = [
-        {
+        new EmployeeAllocation({
           id: 1,
           quickbooksId: 1,
           payrollNumber: 123,
@@ -312,10 +298,10 @@ describe('PayrollFacadeService', () => {
           className: 'Admin',
           name: 'Test Employee',
           isShopEmployee: false,
-        } as EmployeeAllocation,
+        }),
       ];
 
-      stateService.snapshot.and.returnValue({
+      stateService.snapshot.mockReturnValue({
         payslips: mockPayslips,
         payslipsWithMissingEmployeesOrAllocations: [],
         allocations: mockAllocations,
@@ -327,7 +313,7 @@ describe('PayrollFacadeService', () => {
         results: [],
       };
 
-      qbPayrollService.createQBOEntries.and.returnValue(of(mockResponse));
+      qbPayrollService.createQBOEntries.mockReturnValue(of(mockResponse));
 
       const params = {
         employerId: '123',
@@ -335,19 +321,17 @@ describe('PayrollFacadeService', () => {
         month: 1,
       };
 
-      service.createTransactions(params).subscribe(() => {
-        expect(qbPayrollService.createQBOEntries).toHaveBeenCalledWith(
-          mockPayslips,
-          mockAllocations,
-          '2024-01-31'
-        );
-        expect(alertService.success).toHaveBeenCalled();
-        done();
-      });
+      await firstValueFrom(service.createTransactions(params));
+      expect(qbPayrollService.createQBOEntries).toHaveBeenCalledWith(
+        mockPayslips,
+        mockAllocations,
+        '2024-01-31'
+      );
+      expect(alertService.success).toHaveBeenCalled();
     });
 
-    it('should reject if allocations are missing', (done) => {
-      stateService.snapshot.and.returnValue({
+    it('should reject if allocations are missing', async () => {
+      stateService.snapshot.mockReturnValue({
         payslips: [new IrisPayslip()],
         payslipsWithMissingEmployeesOrAllocations: [],
         allocations: [],
@@ -360,12 +344,13 @@ describe('PayrollFacadeService', () => {
         month: 1,
       };
 
-      service.createTransactions(params).subscribe({
-        complete: () => {
-          expect(stateService.setError).toHaveBeenCalled();
-          done();
-        },
-      });
+      try {
+        await firstValueFrom(service.createTransactions(params));
+      } catch (err) {
+        // Observable completes without emitting (EMPTY), so firstValueFrom throws EmptyError
+        expect(err).toBeInstanceOf(EmptyError);
+      }
+      expect(stateService.setError).toHaveBeenCalled();
     });
   });
 
@@ -381,7 +366,7 @@ describe('PayrollFacadeService', () => {
 
     it('should return state snapshot', () => {
       const mockSnapshot = { payslips: [] } as any;
-      stateService.snapshot.and.returnValue(mockSnapshot);
+      stateService.snapshot.mockReturnValue(mockSnapshot);
 
       const result = service.getState();
       expect(result).toBe(mockSnapshot);
@@ -394,7 +379,7 @@ describe('PayrollFacadeService', () => {
 
   describe('Reset', () => {
     it('should reset all state', () => {
-      stateService.reset = jasmine.createSpy('reset');
+      stateService.reset = vi.fn();
 
       service.reset();
 
@@ -402,7 +387,7 @@ describe('PayrollFacadeService', () => {
     });
 
     it('should reset only data', () => {
-      stateService.resetData = jasmine.createSpy('resetData');
+      stateService.resetData = vi.fn();
 
       service.resetData();
 
