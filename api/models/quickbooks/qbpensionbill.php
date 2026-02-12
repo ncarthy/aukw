@@ -105,7 +105,8 @@ class QuickbooksPensionBill extends QuickbooksBill
           "DocNumber" => $this->DocNumber,
           "Line" => [],
           "VendorRef" => QBO::LEGAL_AND_GENERAL_VENDOR,
-          "TotalAmt" => $this->total
+          "TotalAmt" => $this->total,
+          "PrivateNote" => "The number is brackets is the employee's Iris/FMP payroll number."
         );
 
         // For each line below it will only add the respective line if amount != 0
