@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { AlertService } from './alert.service';
-import { ApiResponse, ApiMessage, ApiMessageType } from '@app/_models/api-response';
+import { ApiResponse, ApiMessage, ApiMessageType } from '@app/_models';
 
 /**
  * Service for handling API responses with messages

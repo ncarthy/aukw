@@ -298,14 +298,36 @@ describe('PayrollFacadeService', () => {
       });
     });
 
-    // TODO: Re-enable when createQBOEntries method is implemented in QBPayrollService
-    xit('should create transactions when state is valid', (done) => {
+    it('should create transactions when state is valid', (done) => {
+      const mockPayslips = [new IrisPayslip()];
+      const mockAllocations: EmployeeAllocation[] = [
+        {
+          id: 1,
+          quickbooksId: 1,
+          payrollNumber: 123,
+          percentage: 100,
+          account: '5000',
+          accountName: 'Salaries',
+          class: '1',
+          className: 'Admin',
+          name: 'Test Employee',
+          isShopEmployee: false,
+        } as EmployeeAllocation,
+      ];
+
       stateService.snapshot.and.returnValue({
-        payslips: [new IrisPayslip()],
+        payslips: mockPayslips,
         payslipsWithMissingEmployeesOrAllocations: [],
+        allocations: mockAllocations,
+        payrollDate: '2024-01-31',
       } as any);
 
-      // qbPayrollService.createQBOEntries.and.returnValue(of({}));
+      const mockResponse = {
+        message: 'Successfully created payroll transactions',
+        results: [],
+      };
+
+      qbPayrollService.createQBOEntries.and.returnValue(of(mockResponse));
 
       const params = {
         employerId: '123',
@@ -314,9 +336,35 @@ describe('PayrollFacadeService', () => {
       };
 
       service.createTransactions(params).subscribe(() => {
-        // expect(qbPayrollService.createQBOEntries).toHaveBeenCalled();
+        expect(qbPayrollService.createQBOEntries).toHaveBeenCalledWith(
+          mockPayslips,
+          mockAllocations,
+          '2024-01-31'
+        );
         expect(alertService.success).toHaveBeenCalled();
         done();
+      });
+    });
+
+    it('should reject if allocations are missing', (done) => {
+      stateService.snapshot.and.returnValue({
+        payslips: [new IrisPayslip()],
+        payslipsWithMissingEmployeesOrAllocations: [],
+        allocations: [],
+        payrollDate: '2024-01-31',
+      } as any);
+
+      const params = {
+        employerId: '123',
+        taxYear: '2023-2024',
+        month: 1,
+      };
+
+      service.createTransactions(params).subscribe({
+        complete: () => {
+          expect(stateService.setError).toHaveBeenCalled();
+          done();
+        },
       });
     });
   });

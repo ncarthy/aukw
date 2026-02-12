@@ -230,18 +230,60 @@ export class PayrollFacadeService {
       return EMPTY;
     }
 
+    if (state.allocations.length === 0) {
+      const error: PayrollError = {
+        errorCode: 'VALIDATION_MISSING_REQUIRED_FIELD',
+        message: 'No allocations available. Please ensure allocations are loaded.',
+        retryable: false,
+      };
+      this.handleError(error);
+      return EMPTY;
+    }
+
     // Set loading state
     this.stateService.setLoading('createTransactions', true);
     this.stateService.clearError();
 
-    // TODO: Implement createQBOEntries in QBPayrollService to orchestrate all transaction types
-    // For now, throw an error indicating the method is not yet implemented
-    return throwError(() =>
-      new Error('createQBOEntries method not yet implemented in QBPayrollService')
-    ).pipe(
-      // Error handling
-      catchError((error) => this.handleError(error))
-    );
+    // Create all QuickBooks transactions
+    return this.qbPayrollService
+      .createQBOEntries(
+        state.payslips,
+        state.allocations,
+        state.payrollDate
+      )
+      .pipe(
+        // Loading indicator
+        this.loadingIndicator.createObserving({
+          loading: () => 'Creating QuickBooks transactions...',
+          success: (result) =>
+            `Successfully created all payroll transactions in QuickBooks.`,
+          error: (err) => `Failed to create transactions: ${err}`,
+        }),
+
+        // Update state on success
+        tap((result) => {
+          // Show success message
+          this.alertService.success(
+            'All payroll transactions created successfully in QuickBooks!',
+            { autoClose: true, keepAfterRouteChange: false }
+          );
+
+          // Optionally update flags to indicate transactions are in QBO
+          // This would require updating the payslip flags in the state
+          // For now, we'll leave this for the component to handle via reload
+        }),
+
+        // Share result
+        shareReplay(1),
+
+        // Error handling
+        catchError((error) => this.handleError(error)),
+
+        // Cleanup
+        finalize(() => {
+          this.stateService.setLoading('createTransactions', false);
+        })
+      );
   }
 
   /**

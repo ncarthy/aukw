@@ -1,6 +1,5 @@
 ﻿export * from './alert';
 export * from './apimessage';
-export * from './api-response';
 export * from './auditlog';
 export * from './auditlog-filter';
 export * from './date-range';

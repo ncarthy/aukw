@@ -7,8 +7,9 @@ import {
   BehaviorSubject,
   Subject,
   switchMap,
+  from,
 } from 'rxjs';
-import { defaultIfEmpty, map, tap } from 'rxjs/operators';
+import { defaultIfEmpty, map, tap, mergeMap, toArray } from 'rxjs/operators';
 
 import { environment } from '@environments/environment';
 import {
@@ -27,7 +28,7 @@ import {
   isEqualEmployerNI,
   isEqualShopPay,
 } from '@app/_helpers';
-import { QBEntityService, QBEmployeeService } from '@app/_services';
+import { QBEntityService, QBEmployeeService, PayrollService } from '@app/_services';
 
 const baseUrl = `${environment.apiUrl}/qb`;
 
@@ -39,6 +40,7 @@ export class QBPayrollService {
   private http = inject(HttpClient);
   private qbEntityService = inject(QBEntityService);
   private qbEmployeeService = inject(QBEmployeeService);
+  private payrollService = inject(PayrollService);
 
   private allocationsSubject = new BehaviorSubject<EmployeeAllocation[]>([]);
   private payslipsSubject = new BehaviorSubject<IrisPayslip[]>([]);
@@ -192,6 +194,225 @@ export class QBPayrollService {
     return this.http.post<ApiMessage>(
       `${baseUrl}/${environment.qboEnterprisesRealmID}/journal/enterprises?payrolldate=${payrollDate}`,
       params,
+    );
+  }
+
+  /**
+   * Orchestrate creation of all payroll-related QuickBooks transactions
+   *
+   * This method handles the complete payroll workflow:
+   * 1. Employee journals (one per employee)
+   * 2. Employer NI journal (single consolidated journal)
+   * 3. Pension bills (if applicable)
+   * 4. Shop journal (for shop employees only)
+   *
+   * Transactions are filtered to exclude entries already in QuickBooks.
+   * All transactions are created in parallel where possible using forkJoin.
+   *
+   * @param payslips Array of payslips for all employees
+   * @param allocations Array of cost allocation rules
+   * @param payrollDate The transaction date for all entries
+   * @returns Observable that emits results of all transaction creations
+   */
+  createQBOEntries(
+    payslips: IrisPayslip[],
+    allocations: EmployeeAllocation[],
+    payrollDate: string
+  ): Observable<any> {
+    // Validate inputs
+    if (!payslips || payslips.length === 0) {
+      return of({ error: 'No payslips provided' });
+    }
+
+    if (!allocations || allocations.length === 0) {
+      return of({ error: 'No allocations provided' });
+    }
+
+    // Prepare all transaction observables
+    const transactions: Observable<any>[] = [];
+
+    // 1. Employee Journals - Create one journal per employee
+    // Filter out employees whose journals are already in QBO
+    const employeeJournalsToCreate$ = this.payrollService
+      .employeeJournalEntries(payslips, allocations)
+      .pipe(toArray())
+      .pipe(
+        switchMap((journalEntries) => {
+          // Filter out entries already in QBO
+          const filteredEntries = journalEntries.filter((entry) => {
+            const payslip = payslips.find(
+              (p) => p.payrollNumber === entry.payrollNumber
+            );
+            return payslip && !payslip.payslipJournalInQBO;
+          });
+
+          if (filteredEntries.length === 0) {
+            return of({ employeeJournals: 'All employee journals already in QBO' });
+          }
+
+          // Create journals in parallel for each employee
+          return from(filteredEntries).pipe(
+            mergeMap((entry) =>
+              this.createEmployeeJournal(entry, payrollDate).pipe(
+                map((result) => ({
+                  type: 'employeeJournal',
+                  payrollNumber: entry.payrollNumber,
+                  result,
+                }))
+              )
+            ),
+            toArray(),
+            map((results) => ({ employeeJournals: results }))
+          );
+        })
+      );
+
+    transactions.push(employeeJournalsToCreate$);
+
+    // 2. Employer NI Journal - Single consolidated journal for all employer NI
+    // Only create if not all payslips have NI journal already in QBO
+    const needsEmployerNIJournal = payslips.some((p) => !p.niJournalInQBO);
+
+    if (needsEmployerNIJournal) {
+      const employerNIJournal$ = this.payrollService
+        .employerNIAllocatedCosts(payslips, allocations)
+        .pipe(toArray())
+        .pipe(
+          switchMap((lineItems) => {
+            // Filter line items for employees not yet in QBO
+            const filteredItems = lineItems.filter((item) => {
+              const payslip = payslips.find(
+                (p) => p.payrollNumber === item.payrollNumber
+              );
+              return payslip && !payslip.niJournalInQBO;
+            });
+
+            if (filteredItems.length === 0) {
+              return of({ employerNIJournal: 'Already in QBO' });
+            }
+
+            return this.createEmployerNIJournal(filteredItems, payrollDate).pipe(
+              map((result) => ({ employerNIJournal: result }))
+            );
+          })
+        );
+
+      transactions.push(employerNIJournal$);
+    }
+
+    // 3. Pension Bill - Single bill for all employee pensions
+    // Only create if not all payslips have pension bill already in QBO
+    const needsPensionBill = payslips.some((p) => !p.pensionBillInQBO);
+
+    if (needsPensionBill) {
+      const pensionBill$ = this.payrollService
+        .pensionAllocatedCosts(payslips, allocations)
+        .pipe(toArray())
+        .pipe(
+          switchMap((lineItems) => {
+            // Filter line items for employees not yet in QBO
+            const filteredItems = lineItems.filter((item) => {
+              const payslip = payslips.find(
+                (p) => p.payrollNumber === item.payrollNumber
+              );
+              return payslip && !payslip.pensionBillInQBO;
+            });
+
+            if (filteredItems.length === 0) {
+              return of({ pensionBill: 'Already in QBO' });
+            }
+
+            // Calculate totals for pension bill
+            const totalSalarySacrifice = payslips
+              .filter((p) => !p.pensionBillInQBO)
+              .reduce((sum, p) => sum + p.salarySacrifice, 0);
+
+            const totalEmployeePension = payslips
+              .filter((p) => !p.pensionBillInQBO)
+              .reduce((sum, p) => sum + p.employeePension, 0);
+
+            const pensionCostsTotal = filteredItems.reduce(
+              (sum, item) => sum + item.amount,
+              0
+            );
+
+            const params = {
+              salarySacrificeTotal: totalSalarySacrifice.toFixed(2),
+              employeePensionTotal: totalEmployeePension.toFixed(2),
+              pensionCosts: filteredItems,
+              total: (
+                totalEmployeePension +
+                totalSalarySacrifice +
+                pensionCostsTotal
+              ).toFixed(2),
+            };
+
+            return this.createPensionBill(params, payrollDate).pipe(
+              map((result) => ({ pensionBill: result }))
+            );
+          })
+        );
+
+      transactions.push(pensionBill$);
+    }
+
+    // 4. Shop Journal - For shop employees only
+    const shopEmployees = payslips.filter(
+      (p) => p.isShopEmployee && !p.shopJournalInQBO
+    );
+
+    if (shopEmployees.length > 0) {
+      const shopJournal$ = forkJoin({
+        shopPayslips: of(shopEmployees),
+        employees: this.qbEmployeeService.getAll(
+          environment.qboEnterprisesRealmID
+        ),
+      }).pipe(
+        map((x) => {
+          // Map to format expected by API
+          return x.shopPayslips.map((payslip) => {
+            const employeeName = x.employees.find(
+              (emp) => emp.payrollNumber === payslip.payrollNumber
+            );
+
+            return new IrisPayslip({
+              payrollNumber: payslip.payrollNumber,
+              quickbooksId: employeeName?.quickbooksId || 0,
+              employeeName: employeeName?.name || '',
+              totalPay: payslip.totalPay,
+              employerNI: payslip.employerNI,
+              employerPension: payslip.employerPension,
+            });
+          });
+        }),
+        switchMap((shopPayslipData) => {
+          if (shopPayslipData.length === 0) {
+            return of({ shopJournal: 'No shop employees to process' });
+          }
+
+          return this.createShopJournal(shopPayslipData, payrollDate).pipe(
+            map((result) => ({ shopJournal: result }))
+          );
+        })
+      );
+
+      transactions.push(shopJournal$);
+    }
+
+    // If no transactions to create, return early
+    if (transactions.length === 0) {
+      return of({
+        message: 'All transactions already in QuickBooks',
+        results: [],
+      });
+    }
+
+    // Execute all transactions in parallel
+    return forkJoin(transactions).pipe(
+      map((results) => ({
+        message: 'Successfully created payroll transactions',
+        results,
+      }))
     );
   }
 
