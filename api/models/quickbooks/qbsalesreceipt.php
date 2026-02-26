@@ -8,6 +8,7 @@ use DateTime;
 use Exception;
 use QuickBooksOnline\API\Exception\IdsException;
 use ReflectionException;
+use Errors\QuickBooksApiException;
 
 /**
  * Create and retrieve QBO sales receipt objects.
@@ -496,7 +497,12 @@ class QuickbooksSalesReceipt
 
         $error = $dataService->getLastError();
         if ($error) {
-            throw new SdkException("The QBO Response message is: " . $error->getResponseBody());
+            $errorMessage = $error->getIntuitErrorMessage();
+            if (str_contains($errorMessage, "Duplicate Doc")) {
+                throw QuickBooksApiException::duplicateEntry($errorMessage);
+            } else {
+              throw new SdkException("The QBO Response message is: " . $errorMessage);
+            }
         } else {
             if ($resultingObj) {
                 return array(

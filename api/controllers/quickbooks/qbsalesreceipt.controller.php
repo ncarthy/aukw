@@ -6,6 +6,7 @@ use Models\QuickbooksSalesReceipt;
 use Models\Takings;
 use Core\ErrorResponse as Error;
 use Exception;
+use Errors\QuickBooksApiException;
 
 /**
  * Controller to accomplish QBO sales receipt related tasks.
@@ -162,6 +163,9 @@ class QBSalesReceiptCtl
                           "id" => $result['id'])
                 );
             }
+        } catch (QuickBooksApiException $qbError) {
+            Error::response("Duplicate DocNumber for " . $takings->date . " in QuickBooks.", $qbError);
+        
         } catch (Exception $e) {
             Error::response("Unable to create QBO Sales Receipt from aukw takings record.", $e);
         }
