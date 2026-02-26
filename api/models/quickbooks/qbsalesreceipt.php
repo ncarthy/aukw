@@ -72,6 +72,13 @@ class QuickbooksSalesReceipt
    * @var object
    */
     protected object $donations;
+        /**
+   * The number and value of other sales. This is a rarely used category for 
+   * sales that do not fit into the other categories.
+   *
+   * @var object
+   */
+    protected object $others;
     /**
      * The cost of volunteer expenses
      *
@@ -194,6 +201,14 @@ class QuickbooksSalesReceipt
         $this->donations = $donations;
         return $this;
     }
+        /**
+     * Others setter
+     */
+    public function setOthers(object $others)
+    {
+        $this->others = $others;
+        return $this;
+    }
     /**
      * Volunteer Expenses setter
      */
@@ -290,6 +305,7 @@ class QuickbooksSalesReceipt
         $balance += $this->books->sales + $this->linens->sales + $this->ragging->sales;
         $balance += $this->cashDiscrepancy + $this->cashToCharity + $this->creditCards;
         $balance += $this->volunteerExpenses + $this->operatingExpenses + $this->cash;
+        $balance += $this->others->sales ?? 0;
 
         if (abs($balance) >= 0.005) {
             return false;
@@ -404,6 +420,16 @@ class QuickbooksSalesReceipt
                 "Sales of donated linen products",
                 $this->linens->sales,
                 $this->linens_item,
+                $class,
+                $this->linens->number,
+                $this->sales_account,
+                $this->zero_rated_taxcode
+            );
+            $this->salesreceipt_line(
+                $salesreceipt['Line'],
+                "Sales of other donated items",
+                $this->others->sales,
+                $this->others_item,
                 $class,
                 $this->linens->number,
                 $this->sales_account,
@@ -684,6 +710,10 @@ class QuickbooksSalesReceipt
     private $linens_item = [
       "value" => 40,
       "name" => "Daily Sales:Linens"
+    ];
+    private $others_item = [
+      "value" => 55,
+      "name" => "Daily Sales:Other Items"
     ];
     private $cash_item = [
       "value" => 41,

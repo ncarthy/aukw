@@ -241,6 +241,7 @@ class QBSalesReceiptCtl
               ->setLinens((object) [ 'number' => $takings->linens_num, 'sales' => $takings->linens ])
               ->setRagging((object) [ 'number' => $takings->rag_num, 'sales' => $takings->rag ])
               ->setDonations((object) [ 'number' => $takings->donations_num, 'sales' => $takings->donations ])
+              ->setOthers((object) [ 'number' => $takings->other_num, 'sales' => $takings->other ])
               ->setCashDiscrepancy($takings->cash_difference)
               ->setCreditCards($takings->credit_cards * -1)
               ->setCash($takings->cash_to_bank * -1)
@@ -249,7 +250,7 @@ class QBSalesReceiptCtl
               ->setCashToCharity($takings->cash_to_charity * -1)
               ->setPrivateNote(
                   $takings->comments ?? ''
-              );
+              );              
         } catch (\TypeError $e) {
             Error::response("Unable to enter daily sales receipt in Quickbooks.", $e, 422);
         } catch (Exception $e) {
