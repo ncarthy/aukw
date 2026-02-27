@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AsyncPipe, DecimalPipe } from '@angular/common';
-import { mergeMap, of, tap, scan, Observable } from 'rxjs';
+import { switchMap, from, reduce, mergeMap, of, tap, scan, Observable } from 'rxjs';
 
 import { IrisPayslip, LineItemDetail } from '@app/_models';
 import { PayrollIdentifier } from '@app/_interfaces/payroll-identifier';
@@ -32,48 +32,41 @@ export class PensionLinesListComponent implements OnInit {
     this.payrollTransactionsService.pensions$
       .pipe(
         tap((lines) => (this.lines = lines)),
-        // Go from Observable<T[]> to Observable<T>
-        mergeMap((lines: LineItemDetail[]) => lines),
 
         // loop through all LineItemDetail's and sum the values to form a
         // "total" LineItemDetail that will be put in class level variable
-        scan(
-          (
-            prev: {
-              all: number;
-              salarySacrifice: number;
-              employee: number;
-              employer: number;
-            },
-            curr: LineItemDetail,
-          ) => {
-            switch (curr.name.substring(0, 10)) {
-              case 'Salary Sac':
-                return {
-                  all: prev.all + curr.amount,
-                  salarySacrifice: prev.salarySacrifice + curr.amount,
-                  employee: prev.employee,
-                  employer: prev.employer,
-                };
-              case 'Employee P':
-                return {
-                  all: prev.all + curr.amount,
-                  salarySacrifice: prev.salarySacrifice,
-                  employee: prev.employee + curr.amount,
-                  employer: prev.employer,
-                };
-              default:
-                return {
-                  all: prev.all + curr.amount,
-                  salarySacrifice: prev.salarySacrifice,
-                  employee: prev.employee,
-                  employer: prev.employer + curr.amount,
-                };
-            }
+        switchMap((lines: LineItemDetail[]) =>
+            from(lines).pipe(
+              reduce((prev, curr) => {
+                switch (curr.name.substring(0, 10)) {
+                  case 'Salary Sac':
+                    return {
+                      all: prev.all + curr.amount,
+                      salarySacrifice: prev.salarySacrifice + curr.amount,
+                      employee: prev.employee,
+                      employer: prev.employer,
+                    };
+                  case 'Employee P':
+                    return {
+                      all: prev.all + curr.amount,
+                      salarySacrifice: prev.salarySacrifice,
+                      employee: prev.employee + curr.amount,
+                      employer: prev.employer,
+                    };
+                  default:
+                    return {
+                      all: prev.all + curr.amount,
+                      
+                      salarySacrifice: prev.salarySacrifice,
+                      employee: prev.employee,
+                      employer: prev.employer + curr.amount,
+                    };
+                }
           },
-          { all: 0, salarySacrifice: 0, employee: 0, employer: 0 },
+          { all: 0, salarySacrifice: 0, employee: 0, employer: 0 }
         ),
-      )
+      ))
+    )
       .subscribe((result) => (this.total = result));
   }
 

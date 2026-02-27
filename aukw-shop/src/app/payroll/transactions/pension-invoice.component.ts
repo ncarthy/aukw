@@ -19,6 +19,8 @@ export class PensionInvoiceComponent extends BasePayrollTransactionComponent<Lin
 
     const lines: LineItemDetail[] = [];
     this.total = 0;
+    this.totalSalarySacrifice = 0;
+    this.totalEmployeePension = 0;
 
     this.payslips.forEach((p: IrisPayslip) => {
       this.totalSalarySacrifice += p.salarySacrifice;
