@@ -207,12 +207,24 @@ class QBPayrollQueryCtl
                         // It's expected that the Description/Memo of the employer pension contribution lines contains
                         // the employee name, optionally with the payroll number in brackets. 
                         // We use this to associate the pension costs with the relevant employee payslip.
-                        if (!preg_match('/(\d+)/', $line->Description, $matches)) {
+                        if (!preg_match('/(\d+)/', $line->Description, $matches)) {                        
                             $name = trim(preg_replace('/\([^)]*\)/', '', $line->Description)); // remove anything in brackets to get employee name
+                            // Determine their iris Payroll number
+                            if (array_key_exists($name, $employees)) {
+                                $payrollNumber = $employees[$name]['payrollNumber'];                            
+                            }
                         } else {
-                            $name = trim(str_replace($matches[0], '', $line->Description)); // remove payroll number to get employee name   
+                            $payrollNumber = $matches[0];
+                            $matches = array_filter($employees, fn($row) => $row['payrollNumber'] === $payrollNumber);
+                            if ($matches == null || count($matches) == 0) {
+                                continue; // if we can't find an employee with this payroll number then skip this line
+                            }
+                            $name = $matches[array_key_first($matches)]['name'];
                         }
-                        $name = $line->Description;
+
+                        if (empty($name) || !array_key_exists($name, $employees) || empty($payrollNumber)) {
+                            continue; // if we can't find an employee name or payroll number then we can't associate this pension contribution with a payslip, so skip it
+                        }
 
                         // Determine the account number and if it is a pension costs account
                         $isPensionContributionAccount = false;
@@ -232,10 +244,7 @@ class QBPayrollQueryCtl
 
                         // Is it a pension contribution account?
                         // and is the employee found in the QBO list of employees?
-                        if ($isPensionContributionAccount && array_key_exists($name, $employees)) {
-
-                            // Determine their iris Payroll number
-                            $payrollNumber = $employees[$name]['payrollNumber'];
+                        if ($isPensionContributionAccount ) {
 
                             if (!array_key_exists($payrollNumber, $payslips)) {
 
@@ -258,7 +267,7 @@ class QBPayrollQueryCtl
         }
     }
 
-    /** Helper funciton to create a new employee Payslip
+    /** Helper function to create a new employee Payslip
      * @param $payrollNumber The number associated with the employee in the Iris spreadsheet
      * @param $quickbooksId Id associated with the employee in Quickbooks
      * @param string $name Display name of the employee.
