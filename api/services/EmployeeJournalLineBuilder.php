@@ -137,7 +137,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // PAYE (income tax) - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('PAYE'),
-            -$paye,
+            $paye,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('TAX_ACCOUNT')
@@ -147,7 +147,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Employee NI - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('EMPLOYEE_NI'),
-            -$employeeNI,
+            $employeeNI,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('TAX_ACCOUNT')
@@ -157,7 +157,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Salary sacrifice - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('SALARY_SACRIFICE'),
-            -$salarySacrifice,
+            $salarySacrifice,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('SALARY_SACRIFICE_ACCOUNT')
@@ -167,7 +167,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Employee pension contribution - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('EMPLOYEE_PENSION_CONT'),
-            -$employeePensionContribution,
+            $employeePensionContribution,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('EMPLOYEE_PENSION_CONTRIB_ACCOUNT')
@@ -177,7 +177,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Other deductions - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('OTHER_DEDUCTIONS'),
-            -$otherDeduction,
+            $otherDeduction,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('OTHER_DEDUCTIONS_ACCOUNT')
@@ -187,7 +187,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Student loan - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('STUDENT_LOAN'),
-            -$studentLoan,
+            $studentLoan,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('TAX_ACCOUNT')
@@ -197,7 +197,7 @@ class EmployeeJournalLineBuilder extends BaseJournalLineBuilder
         // Net pay - credit (negative amount)
         $line = $this->createLine(
             $this->getDescription('NET_PAY'),
-            -$netSalary,
+            $netSalary,
             $employeeId,
             $this->getClass('ADMIN_CLASS'),
             $this->getAccount('NET_PAY_ACCOUNT')
