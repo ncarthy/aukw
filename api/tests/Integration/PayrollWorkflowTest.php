@@ -84,11 +84,11 @@ class PayrollWorkflowTest extends TestCase
                     'account' => '261'
                 ],
             ],
-            'netSalary' => 1500,
-            'paye' => 300,
-            'employeeNI' => 150,
+            'netSalary' => -1500,
+            'paye' => -300,
+            'employeeNI' => -150,
             'salarySacrifice' => 0,
-            'employeePensionContribution' => 50,
+            'employeePensionContribution' => -50,
             'studentLoan' => 0,
             'otherDeduction' => 0,
         ];
@@ -204,7 +204,7 @@ class PayrollWorkflowTest extends TestCase
                     'account' => '261'
                 ]
             ],
-            'netSalary' => 1000, // Doesn't balance with gross
+            'netSalary' => -1000, // Doesn't balance with gross
             'paye' => 0,
             'employeeNI' => 0,
             'salarySacrifice' => 0,
@@ -319,9 +319,9 @@ class PayrollWorkflowTest extends TestCase
                     'account' => PayrollConfig::getCharityAccount('STAFF_SALARIES_ACCOUNT')
                 ]
             ],
-            'netSalary' => $netPay,
-            'paye' => $grossPay * 0.15,
-            'employeeNI' => $grossPay * 0.10,
+            'netSalary' => -$netPay,
+            'paye' => -$grossPay * 0.15,
+            'employeeNI' => -$grossPay * 0.10,
             'salarySacrifice' => 0,
             'employeePensionContribution' => 0,
             'studentLoan' => 0,
