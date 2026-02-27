@@ -46,7 +46,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.totalPay
+        (p) => p.totalPay,
       );
 
       expect(results.length).toBe(2);
@@ -64,7 +64,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.totalPay
+        (p) => p.totalPay,
       );
 
       expect(results.length).toBe(2);
@@ -79,7 +79,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.totalPay
+        (p) => p.totalPay,
       );
 
       expect(results.length).toBe(0);
@@ -92,7 +92,7 @@ describe('PayrollCalculationService', () => {
       const results = service.calculateAllocations(
         payslips,
         allocations,
-        (p) => p.totalPay
+        (p) => p.totalPay,
       );
 
       expect(results.length).toBe(1);
@@ -182,9 +182,9 @@ describe('PayrollCalculationService', () => {
 
       // Check all amounts are rounded to 2 decimals
       results.forEach((result) => {
-        expect(result.amount.toString().split('.')[1]?.length || 0).toBeLessThanOrEqual(
-          2
-        );
+        expect(
+          result.amount.toString().split('.')[1]?.length || 0,
+        ).toBeLessThanOrEqual(2);
       });
     });
 
@@ -223,13 +223,13 @@ describe('PayrollCalculationService', () => {
       ];
 
       expect(() => service.validateAllocations(allocations)).toThrowError(
-        /must sum to 100%/
+        /must sum to 100%/,
       );
     });
 
     it('should reject empty allocations', () => {
       expect(() => service.validateAllocations([])).toThrowError(
-        /at least one allocation/i
+        /at least one allocation/i,
       );
     });
 
@@ -240,7 +240,7 @@ describe('PayrollCalculationService', () => {
       ];
 
       expect(() => service.validateAllocations(allocations)).toThrowError(
-        /between 0 and 100/
+        /between 0 and 100/,
       );
     });
 
@@ -249,7 +249,7 @@ describe('PayrollCalculationService', () => {
 
       // Note: Single allocation of 150% fails sum check (150 != 100) not range check
       expect(() => service.validateAllocations(allocations)).toThrowError(
-        /must sum to 100%/i
+        /must sum to 100%/i,
       );
     });
   });
@@ -371,7 +371,7 @@ describe('PayrollCalculationService', () => {
     payrollNumber: number,
     classId: string,
     className: string,
-    percentage: number
+    percentage: number,
   ): EmployeeAllocation {
     return {
       payrollNumber,
@@ -389,7 +389,7 @@ describe('PayrollCalculationService', () => {
   function createLineItem(
     classId: string,
     className: string,
-    amount: number
+    amount: number,
   ): LineItemDetail {
     return new LineItemDetail({
       class: classId,

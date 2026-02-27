@@ -36,10 +36,7 @@ import {
   AlertService,
 } from '@app/_services';
 import { PayrollStateService } from '../state/payroll-state.service';
-import {
-  PayrollErrorHandler,
-  PayrollError,
-} from '../models/errors.model';
+import { PayrollErrorHandler, PayrollError } from '../models/errors.model';
 import { IrisPayslip, EmployeeAllocation, EmployeeName } from '@app/_models';
 import { VALIDATION_RULES } from '../config/payroll.constants';
 
@@ -89,7 +86,7 @@ export class PayrollFacadeService {
   // Error handler
   private readonly errorHandler = new PayrollErrorHandler(
     VALIDATION_RULES.MAX_API_RETRIES,
-    VALIDATION_RULES.API_RETRY_DELAY_MS
+    VALIDATION_RULES.API_RETRY_DELAY_MS,
   );
 
   // ==========================================
@@ -110,7 +107,7 @@ export class PayrollFacadeService {
   loadPayslips(
     params: LoadPayslipsParams,
     employees: EmployeeName[],
-    allocations: EmployeeAllocation[]
+    allocations: EmployeeAllocation[],
   ): Observable<LoadPayslipsResult> {
     // Set loading state
     this.stateService.setLoading('downloadButton', true);
@@ -123,12 +120,16 @@ export class PayrollFacadeService {
       params.month,
       params.payrollDate,
       params.sortBy,
-      params.sortDescending
+      params.sortDescending,
     );
 
     // Adapt and process
     return this.payrollApiAdapter
-      .adaptStaffologyToQuickBooks(grossToNetReport$.pipe(map(response => response.data)), employees, allocations)
+      .adaptStaffologyToQuickBooks(
+        grossToNetReport$.pipe(map((response) => response.data)),
+        employees,
+        allocations,
+      )
       .pipe(
         // Extract and update state
         map((result) => {
@@ -141,14 +142,14 @@ export class PayrollFacadeService {
           const payslipsWithMissingData = result.payslips.filter(
             (payslip) =>
               payslip.employeeMissingFromQBO ||
-              payslip.allocationsMissingFromQBO
+              payslip.allocationsMissingFromQBO,
           );
 
           this.stateService.setPayslipsWithMissingData(payslipsWithMissingData);
 
           // Show create transactions button if no missing data
           this.stateService.setShowCreateTransactionsButton(
-            payslipsWithMissingData.length === 0
+            payslipsWithMissingData.length === 0,
           );
 
           return {
@@ -176,7 +177,7 @@ export class PayrollFacadeService {
         // Cleanup
         finalize(() => {
           this.stateService.setLoading('downloadButton', false);
-        })
+        }),
       );
   }
 
@@ -186,23 +187,21 @@ export class PayrollFacadeService {
   reloadPayslips(
     params: LoadPayslipsParams,
     employees: EmployeeName[],
-    allocations: EmployeeAllocation[]
+    allocations: EmployeeAllocation[],
   ): Observable<LoadPayslipsResult> {
     this.stateService.setLoading('reloadButton', true);
 
     return this.loadPayslips(params, employees, allocations).pipe(
       finalize(() => {
         this.stateService.setLoading('reloadButton', false);
-      })
+      }),
     );
   }
 
   /**
    * Create QuickBooks transactions for all payslips
    */
-  createTransactions(
-    params: CreateTransactionsParams
-  ): Observable<any> {
+  createTransactions(params: CreateTransactionsParams): Observable<any> {
     const state = this.stateService.snapshot();
 
     // Validate state
@@ -233,7 +232,8 @@ export class PayrollFacadeService {
     if (state.allocations.length === 0) {
       const error: PayrollError = {
         errorCode: 'VALIDATION_MISSING_REQUIRED_FIELD',
-        message: 'No allocations available. Please ensure allocations are loaded.',
+        message:
+          'No allocations available. Please ensure allocations are loaded.',
         retryable: false,
       };
       this.handleError(error);
@@ -246,11 +246,7 @@ export class PayrollFacadeService {
 
     // Create all QuickBooks transactions
     return this.qbPayrollService
-      .createQBOEntries(
-        state.payslips,
-        state.allocations,
-        state.payrollDate
-      )
+      .createQBOEntries(state.payslips, state.allocations, state.payrollDate)
       .pipe(
         // Loading indicator
         this.loadingIndicator.createObserving({
@@ -265,7 +261,7 @@ export class PayrollFacadeService {
           // Show success message
           this.alertService.success(
             'All payroll transactions created successfully in QuickBooks!',
-            { autoClose: true, keepAfterRouteChange: false }
+            { autoClose: true, keepAfterRouteChange: false },
           );
 
           // Optionally update flags to indicate transactions are in QBO
@@ -282,7 +278,7 @@ export class PayrollFacadeService {
         // Cleanup
         finalize(() => {
           this.stateService.setLoading('createTransactions', false);
-        })
+        }),
       );
   }
 

@@ -105,7 +105,7 @@ export function notFutureDateValidator(): ValidatorFn {
  */
 export function dateRangeValidator(
   startDateField: string,
-  endDateField: string
+  endDateField: string,
 ): ValidatorFn {
   return (formGroup: AbstractControl): ValidationErrors | null => {
     if (!(formGroup instanceof FormGroup)) {
@@ -151,7 +151,11 @@ export function dateRangeValidator(
  */
 export function positiveAmountValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (control.value === null || control.value === undefined || control.value === '') {
+    if (
+      control.value === null ||
+      control.value === undefined ||
+      control.value === ''
+    ) {
       return null;
     }
 
@@ -191,7 +195,11 @@ export function positiveAmountValidator(): ValidatorFn {
  */
 export function numericValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (control.value === null || control.value === undefined || control.value === '') {
+    if (
+      control.value === null ||
+      control.value === undefined ||
+      control.value === ''
+    ) {
       return null;
     }
 
@@ -214,7 +222,11 @@ export function numericValidator(): ValidatorFn {
  */
 export function percentageValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (control.value === null || control.value === undefined || control.value === '') {
+    if (
+      control.value === null ||
+      control.value === undefined ||
+      control.value === ''
+    ) {
       return null;
     }
 
@@ -260,7 +272,9 @@ export interface JournalLine {
 /**
  * Validate journal lines (debits = credits)
  */
-export function validateJournalLines(lines: JournalLine[]): ValidationErrors | null {
+export function validateJournalLines(
+  lines: JournalLine[],
+): ValidationErrors | null {
   if (!lines || lines.length === 0) {
     return {
       emptyJournal: {
@@ -399,7 +413,7 @@ export function employeeIdValidator(): ValidatorFn {
  */
 export function validatePayPeriod(
   taxYear: string,
-  fiscalMonth: number
+  fiscalMonth: number,
 ): ValidationErrors | null {
   if (!taxYear) {
     return {
@@ -447,7 +461,7 @@ export function validatePayPeriod(
  */
 export function payPeriodValidator(
   taxYearField: string,
-  fiscalMonthField: string
+  fiscalMonthField: string,
 ): ValidatorFn {
   return (formGroup: AbstractControl): ValidationErrors | null => {
     if (!(formGroup instanceof FormGroup)) {
@@ -484,7 +498,9 @@ export interface Allocation {
 /**
  * Validate allocations sum to 100%
  */
-export function validateAllocations(allocations: Allocation[]): ValidationErrors | null {
+export function validateAllocations(
+  allocations: Allocation[],
+): ValidationErrors | null {
   if (!allocations || allocations.length === 0) {
     return {
       emptyAllocations: {

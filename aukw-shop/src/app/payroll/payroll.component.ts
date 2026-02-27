@@ -189,16 +189,16 @@ export class PayrollComponent implements OnInit {
   reloadPayslipsFromAPI() {
     if (this.form.valid) {
       // Get the pay information from the Staffology api
-      const grossToNetReport$ = this.grossToNetService.getAll(
-        this.employerID,
-        this.f['taxYear'].value,
-        this.f['month'].value,
-        this.f['payrollDate'].value,
-        this.f['sortBy'].value,
-        this.f['sortDescending'].value,
-      ).pipe(
-        map(response => this.responseHandler.handleResponse(response))
-      );
+      const grossToNetReport$ = this.grossToNetService
+        .getAll(
+          this.employerID,
+          this.f['taxYear'].value,
+          this.f['month'].value,
+          this.f['payrollDate'].value,
+          this.f['sortBy'].value,
+          this.f['sortDescending'].value,
+        )
+        .pipe(map((response) => this.responseHandler.handleResponse(response)));
 
       // Adapt the salary info into QuickBooks transaction-ready arrays
       this.payrollApiAdapterService

@@ -83,7 +83,7 @@ export class PayrollStateService {
    * Private state subject - single source of truth
    */
   private readonly stateSubject = new BehaviorSubject<PayrollState>(
-    createInitialState()
+    createInitialState(),
   );
 
   /**
@@ -99,70 +99,70 @@ export class PayrollStateService {
    * Payslips observable
    */
   readonly payslips$: Observable<IrisPayslip[]> = this.state$.pipe(
-    map((state) => state.payslips)
+    map((state) => state.payslips),
   );
 
   /**
    * Total payslip observable
    */
   readonly total$: Observable<IrisPayslip> = this.state$.pipe(
-    map((state) => state.total)
+    map((state) => state.total),
   );
 
   /**
    * Payslips with missing data observable
    */
-  readonly payslipsWithMissingData$: Observable<IrisPayslip[]> = this.state$.pipe(
-    map((state) => state.payslipsWithMissingEmployeesOrAllocations)
-  );
+  readonly payslipsWithMissingData$: Observable<IrisPayslip[]> =
+    this.state$.pipe(
+      map((state) => state.payslipsWithMissingEmployeesOrAllocations),
+    );
 
   /**
    * Allocations observable
    */
   readonly allocations$: Observable<EmployeeAllocation[]> = this.state$.pipe(
-    map((state) => state.allocations)
+    map((state) => state.allocations),
   );
 
   /**
    * Employees observable
    */
   readonly employees$: Observable<EmployeeName[]> = this.state$.pipe(
-    map((state) => state.employees)
+    map((state) => state.employees),
   );
 
   /**
    * Payroll date observable
    */
   readonly payrollDate$: Observable<string> = this.state$.pipe(
-    map((state) => state.payrollDate)
+    map((state) => state.payrollDate),
   );
 
   /**
    * Loading state observable
    */
   readonly loading$: Observable<LoadingState> = this.state$.pipe(
-    map((state) => state.loading)
+    map((state) => state.loading),
   );
 
   /**
    * Show create transactions button observable
    */
-  readonly showCreateTransactionsButton$: Observable<boolean> = this.state$.pipe(
-    map((state) => state.showCreateTransactionsButton)
-  );
+  readonly showCreateTransactionsButton$: Observable<boolean> =
+    this.state$.pipe(map((state) => state.showCreateTransactionsButton));
 
   /**
    * Active tab observable
    */
   readonly activeTab$: Observable<number> = this.state$.pipe(
-    map((state) => state.activeTab)
+    map((state) => state.activeTab),
   );
 
   /**
    * Error observable
    */
   readonly error$: Observable<string | null> = this.state$.pipe(
-    map((state) => state.error)
+    map((state) => state.error),
   );
 
   /**
@@ -179,24 +179,22 @@ export class PayrollStateService {
       (loading) =>
         loading.downloadButton ||
         loading.reloadButton ||
-        loading.createTransactions
-    )
+        loading.createTransactions,
+    ),
   );
 
   /**
    * Has payslips observable
    */
   readonly hasPayslips$: Observable<boolean> = this.payslips$.pipe(
-    map((payslips) => payslips.length > 0)
+    map((payslips) => payslips.length > 0),
   );
 
   /**
    * Has missing data observable
    */
   readonly hasMissingData$: Observable<boolean> =
-    this.payslipsWithMissingData$.pipe(
-      map((payslips) => payslips.length > 0)
-    );
+    this.payslipsWithMissingData$.pipe(map((payslips) => payslips.length > 0));
 
   // ==========================================
   // STATE MUTATION METHODS

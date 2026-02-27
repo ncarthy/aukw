@@ -176,7 +176,7 @@ export class PayrollErrorHandler {
   constructor(
     maxRetries?: number,
     retryDelay?: number,
-    backoffMultiplier?: number
+    backoffMultiplier?: number,
   ) {
     if (maxRetries !== undefined) {
       this.maxRetries = maxRetries;
@@ -194,7 +194,11 @@ export class PayrollErrorHandler {
    */
   transformHttpError(error: HttpErrorResponse): PayrollError {
     // If backend sent structured error response
-    if (error.error && typeof error.error === 'object' && error.error.errorCode) {
+    if (
+      error.error &&
+      typeof error.error === 'object' &&
+      error.error.errorCode
+    ) {
       const backendError = error.error as BackendErrorResponse;
 
       return {
@@ -274,7 +278,7 @@ export class PayrollErrorHandler {
    */
   retryStrategy<T>(
     maxRetries?: number,
-    excludeStatusCodes: number[] = [400, 401, 403, 404]
+    excludeStatusCodes: number[] = [400, 401, 403, 404],
   ) {
     const maxAttempts = maxRetries ?? this.maxRetries;
 
@@ -305,17 +309,18 @@ export class PayrollErrorHandler {
 
           // Calculate delay with exponential backoff
           const delay =
-            this.retryDelay * Math.pow(this.backoffMultiplier, retryAttempt - 1);
+            this.retryDelay *
+            Math.pow(this.backoffMultiplier, retryAttempt - 1);
 
           console.warn(
             `Retry attempt ${retryAttempt}/${maxAttempts} after ${delay}ms for error:`,
             error.status,
-            error.message
+            error.message,
           );
 
           // Retry after delay
           return timer(delay);
-        })
+        }),
       );
   }
 
@@ -325,10 +330,10 @@ export class PayrollErrorHandler {
   withRetry<T>(
     source: Observable<T>,
     maxRetries?: number,
-    excludeStatusCodes?: number[]
+    excludeStatusCodes?: number[],
   ): Observable<T> {
     return source.pipe(
-      retryWhen(this.retryStrategy<T>(maxRetries, excludeStatusCodes))
+      retryWhen(this.retryStrategy<T>(maxRetries, excludeStatusCodes)),
     );
   }
 
@@ -351,7 +356,7 @@ export class PayrollErrorHandler {
     // Show technical details for validation errors (user can fix them)
     if (
       Object.values(ValidationErrorCode).includes(
-        error.errorCode as ValidationErrorCode
+        error.errorCode as ValidationErrorCode,
       )
     ) {
       return true;
@@ -414,7 +419,7 @@ export function createValidationError(
   message: string,
   field?: string,
   value?: any,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): ValidationError {
   return {
     errorCode: code,
@@ -436,7 +441,7 @@ export function createApiError(
   httpStatusCode: number,
   endpoint?: string,
   responseBody?: string,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): ApiError {
   return {
     errorCode: code,
@@ -446,6 +451,7 @@ export function createApiError(
     responseBody,
     context,
     timestamp: new Date().toISOString(),
-    retryable: httpStatusCode >= 500 || httpStatusCode === 408 || httpStatusCode === 429,
+    retryable:
+      httpStatusCode >= 500 || httpStatusCode === 408 || httpStatusCode === 429,
   };
 }

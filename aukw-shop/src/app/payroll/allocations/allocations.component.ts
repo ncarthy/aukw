@@ -100,9 +100,12 @@ export class AllocationsComponent implements OnInit {
 
         switchMap((x) => {
           x.allocations.forEach((element) => {
-            // Ignoring messages in GrossToNet ApiResponse as the allocations endpoint 
+            // Ignoring messages in GrossToNet ApiResponse as the allocations endpoint
             // only returns data, not messages
-            this.assignEmployeeByAllocationStatus(element.name, x.grossToNet.data);
+            this.assignEmployeeByAllocationStatus(
+              element.name,
+              x.grossToNet.data,
+            );
           });
           return of(x.allocations);
         }),

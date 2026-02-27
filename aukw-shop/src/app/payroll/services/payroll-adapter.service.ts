@@ -31,7 +31,7 @@ export interface AdaptedPayrollResult {
 export class PayrollAdapterService {
   private readonly qbPayrollService = inject(QBPayrollService);
   private readonly payrollTransactionsService = inject(
-    PayrollTransactionsService
+    PayrollTransactionsService,
   );
 
   /**
@@ -51,7 +51,7 @@ export class PayrollAdapterService {
   adaptStaffologyToQuickBooks(
     payslips$: Observable<IrisPayslip[]>,
     employees: EmployeeName[],
-    allocations: EmployeeAllocation[]
+    allocations: EmployeeAllocation[],
   ): Observable<AdaptedPayrollResult> {
     return payslips$.pipe(
       // Step 1: Enrich payslips and calculate total
@@ -60,22 +60,22 @@ export class PayrollAdapterService {
       // Step 2: Check QB flags for charity
       switchMap((result) =>
         this.addCharityFlags(result.payslips, result.payrollDate).pipe(
-          map((payslips) => ({ ...result, payslips }))
-        )
+          map((payslips) => ({ ...result, payslips })),
+        ),
       ),
 
       // Step 3: Check QB flags for shop
       switchMap((result) =>
         this.addShopFlags(result.payslips, result.payrollDate).pipe(
-          map((payslips) => ({ ...result, payslips }))
-        )
+          map((payslips) => ({ ...result, payslips })),
+        ),
       ),
 
       // Step 4: Notify services (side effects at end of chain)
       map((result) => {
         this.notifyServices(result.payslips);
         return result;
-      })
+      }),
     );
   }
 
@@ -91,7 +91,7 @@ export class PayrollAdapterService {
   private enrichPayslips(
     payslips: IrisPayslip[],
     employees: EmployeeName[],
-    allocations: EmployeeAllocation[]
+    allocations: EmployeeAllocation[],
   ): AdaptedPayrollResult {
     // Calculate total
     let total = new IrisPayslip();
@@ -123,10 +123,10 @@ export class PayrollAdapterService {
    */
   private enrichWithEmployeeData(
     payslip: IrisPayslip,
-    employees: EmployeeName[]
+    employees: EmployeeName[],
   ): void {
     const employee = employees.find(
-      (emp) => emp.payrollNumber === payslip.payrollNumber
+      (emp) => emp.payrollNumber === payslip.payrollNumber,
     );
 
     if (employee) {
@@ -142,11 +142,11 @@ export class PayrollAdapterService {
    */
   private enrichWithAllocationData(
     payslip: IrisPayslip,
-    allocations: EmployeeAllocation[]
+    allocations: EmployeeAllocation[],
   ): void {
     // Note: use == instead of === due to type difference (string vs number)
     const employeeAllocations = allocations.filter(
-      (alloc) => alloc.payrollNumber == payslip.payrollNumber
+      (alloc) => alloc.payrollNumber == payslip.payrollNumber,
     );
 
     if (employeeAllocations && employeeAllocations.length > 0) {
@@ -164,7 +164,7 @@ export class PayrollAdapterService {
    */
   private addCharityFlags(
     payslips: IrisPayslip[],
-    payrollDate: string
+    payrollDate: string,
   ): Observable<IrisPayslip[]> {
     return this.qbPayrollService.payslipFlagsForCharity(payslips, payrollDate);
   }
@@ -176,7 +176,7 @@ export class PayrollAdapterService {
    */
   private addShopFlags(
     payslips: IrisPayslip[],
-    payrollDate: string
+    payrollDate: string,
   ): Observable<IrisPayslip[]> {
     return this.qbPayrollService.payslipFlagsForShop(payslips, payrollDate);
   }

@@ -30,7 +30,8 @@ export const TRANSACTION_TYPES = {
   SHOP_PAYROLL: 'shop_payroll',
 } as const;
 
-export type TransactionType = typeof TRANSACTION_TYPES[keyof typeof TRANSACTION_TYPES];
+export type TransactionType =
+  (typeof TRANSACTION_TYPES)[keyof typeof TRANSACTION_TYPES];
 
 // ==========================================
 // ACCOUNT IDS (CHARITY)
@@ -285,7 +286,7 @@ export function isBalanced(balance: number): boolean {
  */
 export function shouldUseRemainder(
   remainder: number,
-  calculatedAmount: number
+  calculatedAmount: number,
 ): boolean {
   return (
     Math.abs(remainder - calculatedAmount) <
@@ -302,7 +303,7 @@ export function shouldUseRemainder(
  */
 export function generateDocNumber(
   payrollDate: string,
-  suffix: string = ''
+  suffix: string = '',
 ): string {
   const date = new Date(payrollDate);
   if (isNaN(date.getTime())) {
@@ -326,7 +327,7 @@ export function generateDocNumber(
  */
 export function calculatePayrollDate(
   taxYear: string,
-  fiscalMonthNumber: number
+  fiscalMonthNumber: number,
 ): string {
   try {
     const monthIndex = FISCAL_MONTHS.indexOf(fiscalMonthNumber as any);
@@ -358,7 +359,7 @@ export function calculatePayrollDate(
  * Get account ID for charity by key
  */
 export function getCharityAccount(
-  accountKey: keyof typeof CHARITY_ACCOUNTS
+  accountKey: keyof typeof CHARITY_ACCOUNTS,
 ): string {
   return CHARITY_ACCOUNTS[accountKey];
 }
@@ -367,7 +368,7 @@ export function getCharityAccount(
  * Get account ID for enterprises by key
  */
 export function getEnterprisesAccount(
-  accountKey: keyof typeof ENTERPRISES_ACCOUNTS
+  accountKey: keyof typeof ENTERPRISES_ACCOUNTS,
 ): string {
   return ENTERPRISES_ACCOUNTS[accountKey];
 }
@@ -383,7 +384,7 @@ export function getClass(classKey: keyof typeof CLASSES): string {
  * Get description by key
  */
 export function getDescription(
-  descriptionKey: keyof typeof DESCRIPTIONS
+  descriptionKey: keyof typeof DESCRIPTIONS,
 ): string {
   return DESCRIPTIONS[descriptionKey];
 }

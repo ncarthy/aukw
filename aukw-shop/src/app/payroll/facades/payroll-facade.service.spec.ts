@@ -10,7 +10,13 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError, firstValueFrom, lastValueFrom, EmptyError } from 'rxjs';
+import {
+  of,
+  throwError,
+  firstValueFrom,
+  lastValueFrom,
+  EmptyError,
+} from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PayrollFacadeService } from './payroll-facade.service';
 import { PayrollStateService } from '../state/payroll-state.service';
@@ -92,7 +98,9 @@ describe('PayrollFacadeService', () => {
     alertService = TestBed.inject(AlertService);
 
     // Default spy return values
-    loadingIndicatorSpy.createObserving.mockReturnValue((source: any) => source);
+    loadingIndicatorSpy.createObserving.mockReturnValue(
+      (source: any) => source,
+    );
   });
 
   it('should be created', () => {
@@ -113,17 +121,19 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        of(mockResult)
+        of(mockResult),
       );
 
       const params = createLoadParams();
       const employees: EmployeeName[] = [];
       const allocations: EmployeeAllocation[] = [];
 
-      await firstValueFrom(service.loadPayslips(params, employees, allocations));
+      await firstValueFrom(
+        service.loadPayslips(params, employees, allocations),
+      );
       expect(stateService.setLoading).toHaveBeenCalledWith(
         'downloadButton',
-        true
+        true,
       );
     });
 
@@ -139,7 +149,7 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of(mockPayslips));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        of(mockResult)
+        of(mockResult),
       );
 
       const params = createLoadParams();
@@ -162,7 +172,7 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of([payslipWithMissing]));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        of(mockResult)
+        of(mockResult),
       );
 
       const params = createLoadParams();
@@ -170,7 +180,7 @@ describe('PayrollFacadeService', () => {
       const result = await firstValueFrom(service.loadPayslips(params, [], []));
       expect(result.payslipsWithMissingData.length).toBe(1);
       expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
-        false
+        false,
       );
     });
 
@@ -183,14 +193,14 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        of(mockResult)
+        of(mockResult),
       );
 
       const params = createLoadParams();
 
       await firstValueFrom(service.loadPayslips(params, [], []));
       expect(stateService.setShowCreateTransactionsButton).toHaveBeenCalledWith(
-        true
+        true,
       );
     });
 
@@ -199,13 +209,13 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        throwError(() => error)
+        throwError(() => error),
       );
 
       const params = createLoadParams();
 
       await expect(
-        firstValueFrom(service.loadPayslips(params, [], []))
+        firstValueFrom(service.loadPayslips(params, [], [])),
       ).rejects.toThrow();
 
       expect(stateService.setError).toHaveBeenCalled();
@@ -227,13 +237,16 @@ describe('PayrollFacadeService', () => {
 
       grossToNetService.getAll.mockReturnValue(of([new IrisPayslip()]));
       payrollApiAdapter.adaptStaffologyToQuickBooks.mockReturnValue(
-        of(mockResult)
+        of(mockResult),
       );
 
       const params = createLoadParams();
 
       await firstValueFrom(service.reloadPayslips(params, [], []));
-      expect(stateService.setLoading).toHaveBeenCalledWith('reloadButton', true);
+      expect(stateService.setLoading).toHaveBeenCalledWith(
+        'reloadButton',
+        true,
+      );
     });
   });
 
@@ -325,7 +338,7 @@ describe('PayrollFacadeService', () => {
       expect(qbPayrollService.createQBOEntries).toHaveBeenCalledWith(
         mockPayslips,
         mockAllocations,
-        '2024-01-31'
+        '2024-01-31',
       );
       expect(alertService.success).toHaveBeenCalled();
     });

@@ -74,7 +74,7 @@ export class PayrollCalculationService {
   calculateAllocations(
     payslips: IrisPayslip[],
     allocations: EmployeeAllocation[],
-    propertyGetter: (p: IrisPayslip) => number
+    propertyGetter: (p: IrisPayslip) => number,
   ): LineItemDetail[] {
     const results: LineItemDetail[] = [];
 
@@ -89,7 +89,7 @@ export class PayrollCalculationService {
 
       // Get allocations for this employee
       const employeeAllocations = allocations.filter(
-        (alloc) => alloc.payrollNumber === payslip.payrollNumber
+        (alloc) => alloc.payrollNumber === payslip.payrollNumber,
       );
 
       if (employeeAllocations.length === 0) {
@@ -100,7 +100,7 @@ export class PayrollCalculationService {
       const allocatedLines = this.allocateByRules(
         amount,
         employeeAllocations,
-        payslip.payrollNumber
+        payslip.payrollNumber,
       );
 
       results.push(...allocatedLines);
@@ -125,11 +125,12 @@ export class PayrollCalculationService {
   allocateByRules(
     totalAmount: number,
     allocations: EmployeeAllocation[],
-    payrollNumber: number
+    payrollNumber: number,
   ): LineItemDetail[] {
     // Filter out zero-percentage allocations
     const validAllocations = allocations.filter(
-      (alloc) => Math.abs(alloc.percentage) >= VALIDATION_RULES.AMOUNT_ZERO_THRESHOLD
+      (alloc) =>
+        Math.abs(alloc.percentage) >= VALIDATION_RULES.AMOUNT_ZERO_THRESHOLD,
     );
 
     if (validAllocations.length === 0) {
@@ -139,7 +140,7 @@ export class PayrollCalculationService {
     // Validate percentages sum to 100%
     const percentageSum = validAllocations.reduce(
       (sum, alloc) => sum + alloc.percentage,
-      0
+      0,
     );
 
     if (
@@ -159,7 +160,7 @@ export class PayrollCalculationService {
             name: a.name,
             percentage: a.percentage,
           })),
-        }
+        },
       );
     }
 
@@ -173,14 +174,14 @@ export class PayrollCalculationService {
       // Calculate amount based on percentage
       let allocatedAmount = this.calculatePercentageAmount(
         totalAmount,
-        allocation.percentage
+        allocation.percentage,
       );
 
       // Ensure allocated amount doesn't exceed remaining amount
       allocatedAmount = this.constrainToRemainder(
         allocatedAmount,
         remainingAmount,
-        totalAmount < 0
+        totalAmount < 0,
       );
 
       // Edge case: if calculated amount is within £1 of remainder, use remainder
@@ -190,7 +191,7 @@ export class PayrollCalculationService {
 
       // Create line item
       results.push(
-        this.createLineItem(allocation, allocatedAmount, payrollNumber)
+        this.createLineItem(allocation, allocatedAmount, payrollNumber),
       );
 
       // Update remaining amount
@@ -201,7 +202,9 @@ export class PayrollCalculationService {
     const lastAllocation = validAllocations[validAllocations.length - 1];
     const lastAmount = this.roundToTwoDecimals(remainingAmount);
 
-    results.push(this.createLineItem(lastAllocation, lastAmount, payrollNumber));
+    results.push(
+      this.createLineItem(lastAllocation, lastAmount, payrollNumber),
+    );
 
     return results;
   }
@@ -215,7 +218,7 @@ export class PayrollCalculationService {
    */
   private calculatePercentageAmount(
     totalAmount: number,
-    percentage: number
+    percentage: number,
   ): number {
     const amount = (totalAmount * percentage) / 100;
     return this.roundToTwoDecimals(amount);
@@ -235,7 +238,7 @@ export class PayrollCalculationService {
   private constrainToRemainder(
     calculatedAmount: number,
     remainder: number,
-    isNegative: boolean
+    isNegative: boolean,
   ): number {
     if (isNegative) {
       // For negative amounts, use max (less negative)
@@ -267,7 +270,7 @@ export class PayrollCalculationService {
   private createLineItem(
     allocation: EmployeeAllocation,
     amount: number,
-    payrollNumber: number
+    payrollNumber: number,
   ): LineItemDetail {
     return new LineItemDetail({
       quickbooksId: Number(allocation.quickbooksId),
@@ -295,17 +298,17 @@ export class PayrollCalculationService {
         ValidationErrorCode.MISSING_REQUIRED_FIELD,
         'At least one allocation is required',
         'allocations',
-        allocations
+        allocations,
       );
     }
 
     // Check percentages sum to 100%
-    const sum = allocations.reduce((total, alloc) => total + alloc.percentage, 0);
+    const sum = allocations.reduce(
+      (total, alloc) => total + alloc.percentage,
+      0,
+    );
 
-    if (
-      Math.abs(sum - 100) >
-      VALIDATION_RULES.AMOUNT_ZERO_THRESHOLD * 100
-    ) {
+    if (Math.abs(sum - 100) > VALIDATION_RULES.AMOUNT_ZERO_THRESHOLD * 100) {
       throw createValidationError(
         ValidationErrorCode.PERCENTAGE_SUM,
         `Allocation percentages must sum to 100%. Current sum: ${sum}%`,
@@ -318,7 +321,7 @@ export class PayrollCalculationService {
             name: a.name,
             percentage: a.percentage,
           })),
-        }
+        },
       );
     }
 
@@ -332,7 +335,7 @@ export class PayrollCalculationService {
           allocation.percentage,
           {
             allocationName: allocation.name,
-          }
+          },
         );
       }
     }
@@ -349,7 +352,7 @@ export class PayrollCalculationService {
    */
   calculateTotal(
     payslips: IrisPayslip[],
-    propertyGetter: (p: IrisPayslip) => number
+    propertyGetter: (p: IrisPayslip) => number,
   ): number {
     const total = payslips.reduce((sum, payslip) => {
       return sum + propertyGetter(payslip);
@@ -365,7 +368,7 @@ export class PayrollCalculationService {
    * @returns Array of [className, classId, total] tuples
    */
   calculateTotalsByClass(
-    lineItems: LineItemDetail[]
+    lineItems: LineItemDetail[],
   ): [string, string, number][] {
     const classTotals = new Map<string, { name: string; total: number }>();
 
