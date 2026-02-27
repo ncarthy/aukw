@@ -28,7 +28,11 @@ import {
   isEqualEmployerNI,
   isEqualShopPay,
 } from '@app/_helpers';
-import { QBEntityService, QBEmployeeService, PayrollService } from '@app/_services';
+import {
+  QBEntityService,
+  QBEmployeeService,
+  PayrollService,
+} from '@app/_services';
 
 const baseUrl = `${environment.apiUrl}/qb`;
 
@@ -217,7 +221,7 @@ export class QBPayrollService {
   createQBOEntries(
     payslips: IrisPayslip[],
     allocations: EmployeeAllocation[],
-    payrollDate: string
+    payrollDate: string,
   ): Observable<any> {
     // Validate inputs
     if (!payslips || payslips.length === 0) {
@@ -241,13 +245,15 @@ export class QBPayrollService {
           // Filter out entries already in QBO
           const filteredEntries = journalEntries.filter((entry) => {
             const payslip = payslips.find(
-              (p) => p.payrollNumber === entry.payrollNumber
+              (p) => p.payrollNumber === entry.payrollNumber,
             );
             return payslip && !payslip.payslipJournalInQBO;
           });
 
           if (filteredEntries.length === 0) {
-            return of({ employeeJournals: 'All employee journals already in QBO' });
+            return of({
+              employeeJournals: 'All employee journals already in QBO',
+            });
           }
 
           // Create journals in parallel for each employee
@@ -258,13 +264,13 @@ export class QBPayrollService {
                   type: 'employeeJournal',
                   payrollNumber: entry.payrollNumber,
                   result,
-                }))
-              )
+                })),
+              ),
             ),
             toArray(),
-            map((results) => ({ employeeJournals: results }))
+            map((results) => ({ employeeJournals: results })),
           );
-        })
+        }),
       );
 
     transactions.push(employeeJournalsToCreate$);
@@ -282,7 +288,7 @@ export class QBPayrollService {
             // Filter line items for employees not yet in QBO
             const filteredItems = lineItems.filter((item) => {
               const payslip = payslips.find(
-                (p) => p.payrollNumber === item.payrollNumber
+                (p) => p.payrollNumber === item.payrollNumber,
               );
               return payslip && !payslip.niJournalInQBO;
             });
@@ -291,10 +297,11 @@ export class QBPayrollService {
               return of({ employerNIJournal: 'Already in QBO' });
             }
 
-            return this.createEmployerNIJournal(filteredItems, payrollDate).pipe(
-              map((result) => ({ employerNIJournal: result }))
-            );
-          })
+            return this.createEmployerNIJournal(
+              filteredItems,
+              payrollDate,
+            ).pipe(map((result) => ({ employerNIJournal: result })));
+          }),
         );
 
       transactions.push(employerNIJournal$);
@@ -313,7 +320,7 @@ export class QBPayrollService {
             // Filter line items for employees not yet in QBO
             const filteredItems = lineItems.filter((item) => {
               const payslip = payslips.find(
-                (p) => p.payrollNumber === item.payrollNumber
+                (p) => p.payrollNumber === item.payrollNumber,
               );
               return payslip && !payslip.pensionBillInQBO;
             });
@@ -333,7 +340,7 @@ export class QBPayrollService {
 
             const pensionCostsTotal = filteredItems.reduce(
               (sum, item) => sum + item.amount,
-              0
+              0,
             );
 
             const params = {
@@ -348,9 +355,9 @@ export class QBPayrollService {
             };
 
             return this.createPensionBill(params, payrollDate).pipe(
-              map((result) => ({ pensionBill: result }))
+              map((result) => ({ pensionBill: result })),
             );
-          })
+          }),
         );
 
       transactions.push(pensionBill$);
@@ -358,21 +365,21 @@ export class QBPayrollService {
 
     // 4. Shop Journal - For shop employees only
     const shopEmployees = payslips.filter(
-      (p) => p.isShopEmployee && !p.shopJournalInQBO
+      (p) => p.isShopEmployee && !p.shopJournalInQBO,
     );
 
     if (shopEmployees.length > 0) {
       const shopJournal$ = forkJoin({
         shopPayslips: of(shopEmployees),
         employees: this.qbEmployeeService.getAll(
-          environment.qboEnterprisesRealmID
+          environment.qboEnterprisesRealmID,
         ),
       }).pipe(
         map((x) => {
           // Map to format expected by API
           return x.shopPayslips.map((payslip) => {
             const employeeName = x.employees.find(
-              (emp) => emp.payrollNumber === payslip.payrollNumber
+              (emp) => emp.payrollNumber === payslip.payrollNumber,
             );
 
             return new IrisPayslip({
@@ -391,9 +398,9 @@ export class QBPayrollService {
           }
 
           return this.createShopJournal(shopPayslipData, payrollDate).pipe(
-            map((result) => ({ shopJournal: result }))
+            map((result) => ({ shopJournal: result })),
           );
-        })
+        }),
       );
 
       transactions.push(shopJournal$);
@@ -412,7 +419,7 @@ export class QBPayrollService {
       map((results) => ({
         message: 'Successfully created payroll transactions',
         results,
-      }))
+      })),
     );
   }
 

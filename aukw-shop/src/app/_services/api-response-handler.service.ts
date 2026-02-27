@@ -31,7 +31,7 @@ export class ApiResponseHandler {
   handleResponse<T>(response: ApiResponse<T>): T {
     // Display all messages to the user
     if (response.messages && response.messages.length > 0) {
-      response.messages.forEach(msg => this.displayMessage(msg));
+      response.messages.forEach((msg) => this.displayMessage(msg));
     }
 
     return response.data;
@@ -45,7 +45,7 @@ export class ApiResponseHandler {
   private displayMessage(message: ApiMessage): void {
     const options = {
       autoClose: message.type === 'success' || message.type === 'info',
-      keepAfterRouteChange: false
+      keepAfterRouteChange: false,
     };
 
     switch (message.type) {
@@ -72,7 +72,7 @@ export class ApiResponseHandler {
    * @returns Array of messages matching the type
    */
   getMessagesByType(response: ApiResponse, type: ApiMessageType): ApiMessage[] {
-    return response.messages.filter(msg => msg.type === type);
+    return response.messages.filter((msg) => msg.type === type);
   }
 
   /**
@@ -83,7 +83,7 @@ export class ApiResponseHandler {
    */
   hasIssues(response: ApiResponse): boolean {
     return response.messages.some(
-      msg => msg.type === 'warning' || msg.type === 'error'
+      (msg) => msg.type === 'warning' || msg.type === 'error',
     );
   }
 
@@ -94,7 +94,7 @@ export class ApiResponseHandler {
    * @returns True if there are info messages
    */
   hasInfoMessages(response: ApiResponse): boolean {
-    return response.messages.some(msg => msg.type === 'info');
+    return response.messages.some((msg) => msg.type === 'info');
   }
 
   /**
@@ -113,7 +113,7 @@ export class ApiResponseHandler {
       info: this.getMessagesByType(response, 'info').length,
       warning: this.getMessagesByType(response, 'warning').length,
       success: this.getMessagesByType(response, 'success').length,
-      error: this.getMessagesByType(response, 'error').length
+      error: this.getMessagesByType(response, 'error').length,
     };
   }
 }

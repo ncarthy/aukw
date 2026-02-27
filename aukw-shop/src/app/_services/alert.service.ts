@@ -61,6 +61,6 @@ export class AlertService {
         return AlertType.Success;
       default:
         return AlertType.Info;
-    } 
+    }
   }
 }
