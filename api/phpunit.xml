@@ -22,17 +22,22 @@
         </testsuite>
     </testsuites>
 
-    <coverage includeUncoveredFiles ="true">
+    <source>
         <include>
             <directory suffix=".php">services</directory>
             <directory suffix=".php">validators</directory>
             <directory suffix=".php">config</directory>
+            <directory suffix=".php">models</directory>
+            <directory suffix=".php">core</directory>
+            <directory suffix=".php">errors</directory>
         </include>
         <exclude>
             <directory>vendor</directory>
             <directory>tests</directory>
         </exclude>
-    </coverage>
+    </source>
+
+    <coverage/>
 
     <php>
         <env name="APP_ENV" value="testing"/>
